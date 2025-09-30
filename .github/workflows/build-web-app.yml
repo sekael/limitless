@@ -17,9 +17,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: "npm" # enables built-in caching for node_modules
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Expo Web
         run: npx expo export --platform web
