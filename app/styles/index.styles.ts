@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: "30%"
+    paddingTop: 250 
   },
   overlay: {
     backgroundColor: "rgba(255,255,255,0.7)", // optional overlay
@@ -16,7 +16,6 @@ export const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "700",
     color: "#1e293b",
-    marginBottom: 12,
     textAlign: "center",
   },
   subtitle: {
@@ -25,5 +24,6 @@ export const styles = StyleSheet.create({
     color: "#475569",
     textAlign: "center",
     lineHeight: 26,
+    padding: 12
   },
 });

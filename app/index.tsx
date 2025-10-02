@@ -12,7 +12,7 @@ export default function Index() {
     <ImageBackground
     source={require("../assets/images/background.jpg")}
     style={styles.background}
-    contentFit="fill">
+    contentFit="cover">
     <Text style={[styles.title, { color: theme.colors.text }]}>Hello there!</Text>
     <Text style={[styles.subtitle, {color: theme.colors.mutedText }]}>More is coming soon, maybe ... when I find time!</Text>
     </ImageBackground>
