@@ -9,7 +9,7 @@ export default function Index() {
     <>
     <Stack.Screen options={{ title: "limitless", headerShown: false }}/>
     <ImageBackground
-    source={require("../assets/images/background.jpg")}
+    source={require("./assets/images/background.jpg")}
     style={styles.background}
     contentFit="cover">
     <ThemedText type='title' textColor='primaryText'>Hello there!</ThemedText>
