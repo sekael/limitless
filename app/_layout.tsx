@@ -1,14 +1,14 @@
 import { Stack } from "expo-router";
-import { Platform } from "react-native";
-import { ThemePicker } from "./components/ThemePicker";
+import { darkTheme, lightTheme } from "./constants/theme";
+import { useColorScheme } from "./hooks/use-color-scheme.web";
 import { ThemeProvider } from "./providers/ThemeProvider";
 
 export default function RootLayout() {
-  const isWeb = Platform.OS === "web";
+  const colorScheme = useColorScheme();
+
   return (
-  <ThemeProvider>
+  <ThemeProvider value={colorScheme === 'dark' ? darkTheme : lightTheme}>
   <Stack screenOptions={{ headerShown: false }} />
-  { isWeb && <ThemePicker/>}
   </ThemeProvider>
   );
 }
