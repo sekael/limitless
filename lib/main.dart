@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:limitless_flutter/home.dart';
+import 'package:limitless_flutter/pages/home.dart';
 import 'theme/app_theme.dart';
 
 void main() async {

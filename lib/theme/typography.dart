@@ -18,13 +18,3 @@ TextTheme buildTextTheme(Brightness brightness) {
     labelLarge: base.labelLarge?.copyWith(letterSpacing: 0.2),
   );
 }
-
-/// If you later add a brand font, you can adapt like this:
-TextTheme applyPlatformFonts(TextTheme text) {
-  if (kIsWeb || Platform.isAndroid) {
-    // Example: keep Roboto/brand on Android/Web
-    return text;
-  }
-  // On iOS, avoid forcing a font so SF remains the system default.
-  return text;
-}

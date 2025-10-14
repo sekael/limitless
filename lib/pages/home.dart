@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/text/body.dart';
+import 'package:limitless_flutter/components/text/title.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -23,20 +25,14 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      "Hello There!",
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                    TitleText(
+                      titleText: "Hello there!",
+                      colorOverride: Colors.white,
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      "More coming soon...\nmaybe ...\nwhen I find time.",
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    CenterAlignedBodyText(
+                      bodyText:
+                          "More coming soon...\nmaybe ...\nwhen I find time.",
+                      colorOverride: Colors.grey[300],
                     ),
                   ],
                 ),

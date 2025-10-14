@@ -10,12 +10,12 @@ import 'tokens.dart';
 class AppTheme {
   // If you don’t use the generator yet, uncomment this instead:
   static final ColorScheme lightScheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF8C5A1E),
     brightness: Brightness.light,
+    seedColor: const Color.fromARGB(255, 184, 126, 41),
   );
   static final ColorScheme darkScheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF8C5A1E),
     brightness: Brightness.dark,
+    seedColor: const Color.fromARGB(255, 184, 126, 41),
   );
 
   static ThemeData themeFrom(ColorScheme scheme) {
