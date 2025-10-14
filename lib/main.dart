@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/pages/home.dart';
-import 'theme/app_theme.dart';
+import 'theme/theme.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final (light, dark) = await AppTheme.buildAdaptiveThemes();
-
-  runApp(MainApp(lightTheme: light, darkTheme: dark));
+  runApp(MainApp(lightTheme: lightMode, darkTheme: darkMode));
 }
 
 class MainApp extends StatelessWidget {
