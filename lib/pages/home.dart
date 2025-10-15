@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/title.dart';
+import 'package:limitless_flutter/components/theme_toggle.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -25,6 +26,7 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    TitleText(titleText: "This is the theme color"),
                     TitleText(
                       titleText: "Hello there!",
                       colorOverride: Colors.white,
@@ -37,6 +39,7 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               ),
+              PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),
             ],
           ),
         ),

@@ -1,9 +1,15 @@
-import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'typography.dart';
 import 'tokens.dart';
+
+bool get _isCupertinoPlatform {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+}
 
 final ColorScheme lightScheme = ColorScheme.fromSeed(
   brightness: Brightness.light,
@@ -28,7 +34,8 @@ ThemeData themeFrom(ColorScheme scheme) {
       backgroundColor: scheme.surface,
       foregroundColor: scheme.onSurface,
       elevation: 0,
-      centerTitle: Platform.isIOS, // centers titles on iOS like UINavigationBar
+      centerTitle:
+          _isCupertinoPlatform, // centers titles on iOS like UINavigationBar
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       selectedItemColor: scheme.primary,
