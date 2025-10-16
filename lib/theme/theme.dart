@@ -18,7 +18,7 @@ final ColorScheme lightScheme = ColorScheme.fromSeed(
 
 final ColorScheme darkScheme = ColorScheme.fromSeed(
   brightness: Brightness.dark,
-  seedColor: const Color.fromARGB(255, 184, 126, 41),
+  seedColor: const Color.fromARGB(255, 41, 41, 184),
 );
 
 ThemeData themeFrom(ColorScheme scheme) {

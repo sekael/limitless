@@ -9,9 +9,7 @@ class ThemeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ThemeProvider>();
-    final isDark = provider.isDark;
-    final isLight = !isDark;
+    final isDarkNow = Theme.of(context).brightness == Brightness.dark;
 
     return SafeArea(
       minimum: const EdgeInsets.only(right: 16, bottom: 16),
@@ -31,11 +29,13 @@ class ThemeToggle extends StatelessWidget {
                 vertical: 6,
               ),
               child: Switch(
-                value: isLight,
-                onChanged: (_) => context.read<ThemeProvider>().toggle(),
+                value: isDarkNow,
+                onChanged: (m) => context.read<ThemeProvider>().setMode(
+                  m ? ThemeMode.dark : ThemeMode.light,
+                ),
                 thumbIcon: WidgetStateProperty.resolveWith(
                   (_) => Icon(
-                    isLight
+                    isDarkNow
                         ? Icons.dark_mode_rounded
                         : Icons.light_mode_rounded,
                     size: 18,
