@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Align(
                 alignment: FractionalOffset(0.5, 0.3),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     if (_isLoading) ...[
                       const CircularProgressIndicator(),
