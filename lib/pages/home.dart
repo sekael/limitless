@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/text/body.dart';
-import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
+import 'package:limitless_flutter/features/quotes/presentation/quote_display.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -94,30 +94,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       const CircularProgressIndicator(),
                     ] else if (_error != null) ...[
                       CenterAlignedBodyText(
-                        bodyText: 'Failed to load quotes from backend',
+                        bodyText: 'Struggling to find inspiration today',
                       ),
                     ] else if (_currentQuote == null) ...[
                       CenterAlignedBodyText(
-                        bodyText: 'No quotes to show today...',
+                        bodyText: 'We will be back to inspire you soon...',
                       ),
                     ] else ...[
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: CenterAlignedBodyText(
-                          bodyText: _currentQuote!.quote.toString(),
-                          styleOverride: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
+                      QuoteDisplay(quote: _currentQuote!),
                     ],
-                    CenterAlignedBodyText(
-                      bodyText:
-                          "More coming soon...\nmaybe ...\nwhen I find time.",
-                      colorOverride: Colors.grey[300],
-                    ),
                   ],
                 ),
               ),

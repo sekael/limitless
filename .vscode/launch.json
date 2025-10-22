@@ -27,7 +27,7 @@
             "type": "dart",
             "toolArgs": [
                 "--dart-define-from-file",
-                "dev.json"
+                "dev.env"
             ]
         }
     ]
