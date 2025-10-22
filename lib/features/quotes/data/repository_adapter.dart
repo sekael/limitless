@@ -13,7 +13,6 @@ class QuotesRepositoryAdapter implements QuotesRepository {
         .select('*')
         .order('id');
 
-    print("Repository adapter retrieved quotes from Supabase");
     return rows.map(Quote.fromMap).toList();
   }
 }
