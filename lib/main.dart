@@ -1,40 +1,54 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/data/repository_adapter.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/theme/theme_provider.dart';
+import 'package:limitless_flutter/supabase.dart';
 import 'package:provider/provider.dart';
+import 'package:talker/talker.dart';
 import 'theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // TODO: implement user login flow
+final talker = Talker(
+  settings: TalkerSettings(
+    enabled: true,
+    useHistory: true,
+    maxHistoryItems: 10000,
+    useConsoleLogs: true,
+  ),
+);
 
-Future main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: 'dev.env');
+  FlutterError.onError = (details) {
+    talker.error('Flutter error', details.exception, details.stack);
+    FlutterError.presentError(details);
+  };
 
-  final supabaseUrl = dotenv.env['SUPABASE_URL'];
-  final supabaseKey = dotenv.env['SUPABASE_ANON_KEY'];
+  SupabaseClient supabase = await SupabaseBootstrap.initializeDevClient();
 
-  if (supabaseUrl == null || supabaseKey == null) {
-    throw Exception('Missing configuration for Supabase');
-  }
-
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
-  final supabase = Supabase.instance.client;
-
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<QuotesRepository>(
-          create: (_) => QuotesRepositoryAdapter(supabase),
+  runZonedGuarded(
+    () {
+      runApp(
+        MultiProvider(
+          providers: [
+            Provider<QuotesRepository>(
+              create: (_) => QuotesRepositoryAdapter(supabase),
+            ),
+            ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ],
+          child: const MainApp(),
         ),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ],
-      child: const MainApp(),
-    ),
+      );
+    },
+    (error, stack) {
+      talker.handle(error, stack, 'Uncaught zone error');
+    },
   );
 }
 
