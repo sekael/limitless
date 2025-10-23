@@ -13,7 +13,7 @@ bool get _isCupertinoPlatform {
 
 final ColorScheme lightScheme = ColorScheme.fromSeed(
   brightness: Brightness.light,
-  seedColor: const Color.fromARGB(255, 184, 126, 41),
+  seedColor: const Color(0xFFFF9800),
 );
 
 final ColorScheme darkScheme = ColorScheme.fromSeed(

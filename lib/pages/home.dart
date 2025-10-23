@@ -2,11 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/text/body.dart';
+import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:limitless_flutter/features/quotes/presentation/quote_display.dart';
 import 'package:provider/provider.dart';
+import 'package:talker_flutter/talker_flutter.dart';
+
+final talker = TalkerFlutter.init();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -45,6 +49,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (!mounted) return;
 
       if (items.isEmpty) {
+        talker.warning('Could not retrieve any items from the repository');
         setState(() {
           _currentQuote = null;
           _isLoading = false;
@@ -52,15 +57,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return;
       }
 
+      talker.info(
+        'Successfully retrieved ${items.length} items from repository',
+      );
+
       final r = Random.secure();
       final idx = r.nextInt(items.length);
       final randomQuote = items[idx];
+      talker.info('Successfully picked random quote');
 
       setState(() {
         _currentQuote = randomQuote;
         _isLoading = false;
       });
     } catch (e) {
+      talker.error(
+        'An error occurred while loading and picking quote: ${e.toString()}',
+      );
       if (!mounted) return;
       setState(() {
         _error = e;
@@ -70,6 +83,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
+  // TODO: add bright background image for light mode
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,9 +100,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             fit: StackFit.expand,
             children: [
               Align(
-                alignment: FractionalOffset(0.5, 0.3),
+                alignment: FractionalOffset(0.5, 0.35),
                 child: Column(
-                  mainAxisSize: MainAxisSize.max,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     if (_isLoading) ...[
                       const CircularProgressIndicator(),
@@ -101,7 +115,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         bodyText: 'We will be back to inspire you soon...',
                       ),
                     ] else ...[
-                      QuoteDisplay(quote: _currentQuote!),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: QuoteDisplay(quote: _currentQuote!),
+                      ),
                     ],
                   ],
                 ),
