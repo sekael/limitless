@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/text/body.dart';
-import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
@@ -83,18 +83,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  // TODO: add bright background image for light mode
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.jpg'),
-            fit: BoxFit.cover,
-            alignment: AlignmentGeometry.center,
-          ),
-        ),
+        decoration: BackgroundImage.getBackgroundImage(context),
         child: SafeArea(
           child: Stack(
             fit: StackFit.expand,

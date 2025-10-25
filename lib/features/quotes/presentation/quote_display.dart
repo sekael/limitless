@@ -1,10 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
-import 'package:limitless_flutter/theme/theme_provider.dart';
-import 'package:provider/provider.dart';
 
 class QuoteDisplay extends StatelessWidget {
   final Quote quote;
@@ -13,13 +9,13 @@ class QuoteDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.watch<ThemeProvider>().isDark;
-    final borderColor = isDark
+    final isDarkNow = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDarkNow
         ? Colors.white.withAlpha(64)
         : Colors.grey.withAlpha(64);
-    final backgroundColor = isDark
-        ? Colors.white.withAlpha(32)
-        : Colors.grey.withAlpha(32);
+    final backgroundColor = isDarkNow
+        ? Colors.white.withAlpha(64)
+        : Colors.grey.withAlpha(64);
 
     return Container(
       decoration: BoxDecoration(
