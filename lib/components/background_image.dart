@@ -7,8 +7,8 @@ class AnimatedBackground extends StatefulWidget {
 
   const AnimatedBackground({
     super.key,
-    this.lightBackgroundImage = 'images/background/light.jpg',
-    this.darkBackgroundImage = 'images/background/dark.jpg',
+    this.lightBackgroundImage = 'assets/images/background/light.jpg',
+    this.darkBackgroundImage = 'assets/images/background/dark.jpg',
     this.fadeDuration = const Duration(milliseconds: 1500),
   });
 
