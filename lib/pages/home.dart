@@ -86,40 +86,43 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BackgroundImage.getBackgroundImage(context),
-        child: SafeArea(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Align(
-                alignment: FractionalOffset(0.5, 0.35),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_isLoading) ...[
-                      const CircularProgressIndicator(),
-                    ] else if (_error != null) ...[
-                      CenterAlignedBodyText(
-                        bodyText: 'Struggling to find inspiration today',
-                      ),
-                    ] else if (_currentQuote == null) ...[
-                      CenterAlignedBodyText(
-                        bodyText: 'We will be back to inspire you soon...',
-                      ),
-                    ] else ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: QuoteDisplay(quote: _currentQuote!),
-                      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedBackground(),
+          SafeArea(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Align(
+                  alignment: FractionalOffset(0.5, 0.35),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_isLoading) ...[
+                        const CircularProgressIndicator(),
+                      ] else if (_error != null) ...[
+                        CenterAlignedBodyText(
+                          bodyText: 'Struggling to find inspiration today',
+                        ),
+                      ] else if (_currentQuote == null) ...[
+                        CenterAlignedBodyText(
+                          bodyText: 'We will be back to inspire you soon...',
+                        ),
+                      ] else ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: QuoteDisplay(quote: _currentQuote!),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),
-            ],
+                PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
