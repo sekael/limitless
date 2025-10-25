@@ -29,6 +29,15 @@
                 "--dart-define-from-file",
                 "dev.env"
             ]
+        },
+        {
+            "name": "limitless PROD",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": [
+                "--dart-define-from-file",
+                "prod.env"
+            ]
         }
     ]
 }
