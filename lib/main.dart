@@ -10,7 +10,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SupabaseClient supabase = await SupabaseBootstrap.initializeDevClient();
+  SupabaseClient supabase = await SupabaseBootstrap.initializeClientFromFile(
+    'prod.env',
+  );
 
   runApp(
     MultiProvider(

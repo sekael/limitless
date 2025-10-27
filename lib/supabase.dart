@@ -4,8 +4,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseBootstrap {
-  static Future<SupabaseClient> initializeDevClient() async {
-    await dotenv.load(fileName: 'dev.env');
+  static Future<SupabaseClient> initializeClientFromFile(
+    String fileName,
+  ) async {
+    await dotenv.load(fileName: fileName);
 
     final supabaseUrl = dotenv.env['SUPABASE_URL'];
     final supabaseKey = dotenv.env['SUPABASE_ANON_KEY'];
