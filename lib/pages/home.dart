@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/background_image.dart';
+import 'package:limitless_flutter/components/button.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
@@ -86,6 +87,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        actions: [AdaptiveButton(buttonText: 'Log In')],
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Stack(
         fit: StackFit.expand,
         children: [
