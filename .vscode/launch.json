@@ -38,6 +38,15 @@
                 "--dart-define-from-file",
                 "prod.env"
             ]
+        },
+        {
+            "name": "limitless iOS Mobile",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": [
+                "--web-renderer",
+                "html"
+            ]
         }
     ]
 }
