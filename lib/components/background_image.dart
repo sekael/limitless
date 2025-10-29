@@ -16,55 +16,116 @@ class AnimatedBackground extends StatefulWidget {
   State<AnimatedBackground> createState() => _AnimatedBackgroundState();
 }
 
-class _AnimatedBackgroundState extends State<AnimatedBackground> {
+class _AnimatedBackgroundState extends State<AnimatedBackground>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _coverAnimation;
+
+  late String _currentAsset;
+  String? _nextAsset;
+  bool _swapped = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: widget.fadeDuration,
+    );
+
+    _coverAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+
+    // Initial asset based on current theme
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      _currentAsset = isDark
+          ? widget.darkBackgroundImage
+          : widget.lightBackgroundImage;
+
+      // Warm images to reduce flashes
+      precacheImage(AssetImage(widget.lightBackgroundImage), context);
+      precacheImage(AssetImage(widget.darkBackgroundImage), context);
+      setState(() {});
+    });
+
+    _controller.addListener(() {
+      // Swap images once past the midpoint of the animation
+      if (!_swapped && _controller.value >= 0.5 && _nextAsset != null) {
+        _currentAsset = _nextAsset!;
+        _swapped = true;
+        setState(() {});
+      }
+    });
+  }
+
   @override
   void didChangeDependencies() {
-    precacheImage(AssetImage(widget.lightBackgroundImage), context);
-    precacheImage(AssetImage(widget.darkBackgroundImage), context);
     super.didChangeDependencies();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      final desired = isDark
+          ? widget.darkBackgroundImage
+          : widget.lightBackgroundImage;
+
+      if (_currentAsset == desired || _controller.isAnimating) return;
+
+      _nextAsset = desired;
+      _swapped = false;
+
+      // Make sure the next image is decoded before the animation
+      await precacheImage(AssetImage(desired), context);
+
+      if (!mounted) return;
+      _controller.forward(from: 0.0);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final isDarkNow = Theme.of(context).brightness == Brightness.dark;
-    final backgroundImage = isDarkNow
-        ? widget.darkBackgroundImage
-        : widget.lightBackgroundImage;
 
-    // Darken or brighten image depending on theme
-    final Color scrimColor = isDarkNow
-        ? Colors.black.withAlpha(64)
-        : Colors.white.withAlpha(64);
+    // Colors for animation
+    final fullCover = isDarkNow ? Colors.black : Colors.white;
+    // final scrimColor = isDarkNow
+    //     ? Colors.black.withAlpha(64)
+    //     : Colors.white.withAlpha(64);
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        AnimatedSwitcher(
-          duration: widget.fadeDuration,
-          switchInCurve: Curves.easeOut,
-          switchOutCurve: Curves.easeIn,
-          layoutBuilder: (currentChild, previousChildren) => Stack(
-            fit: StackFit.expand,
-            children: <Widget>[
-              ...previousChildren,
-              if (currentChild != null) currentChild,
-            ],
-          ),
-          child: Image.asset(
-            backgroundImage,
-            key: ValueKey(backgroundImage),
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
-          ),
-        ),
+    const double peakOpacity = 1.0;
 
-        // Animate the overlay color
-        TweenAnimationBuilder(
-          tween: ColorTween(end: scrimColor),
-          duration: widget.fadeDuration,
-          builder: (_, color, _) => Container(color: color),
-        ),
-      ],
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              _currentAsset,
+              key: ValueKey(_currentAsset),
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+              gaplessPlayback: true,
+            ),
+          ],
+        );
+      },
     );
   }
 }
