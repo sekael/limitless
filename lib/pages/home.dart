@@ -8,6 +8,7 @@ import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:limitless_flutter/features/quotes/presentation/quote_display.dart';
+import 'package:limitless_flutter/pages/login.dart';
 import 'package:provider/provider.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -87,16 +88,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        actions: [AdaptiveButton(buttonText: 'Log In')],
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      backgroundColor: Colors.transparent,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          AnimatedBackground(),
           SafeArea(
             child: Stack(
               fit: StackFit.expand,
@@ -120,6 +115,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: QuoteDisplay(quote: _currentQuote!),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: AdaptiveButton(
+                            buttonText: 'Log In',
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginPage(),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ],
