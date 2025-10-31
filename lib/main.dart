@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/data/repository_adapter.dart';
 import 'package:limitless_flutter/pages/home.dart';
@@ -39,6 +40,12 @@ class MainApp extends StatelessWidget {
       theme: lightMode,
       darkTheme: darkMode,
       themeMode: provider.mode,
+      builder: (context, child) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [AnimatedBackground(), child ?? const SizedBox.shrink()],
+        );
+      },
       home: const HomePage(),
     );
   }
