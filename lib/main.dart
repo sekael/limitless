@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/background_image.dart';
+import 'package:limitless_flutter/components/sliding_page_transition.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/data/repository_adapter.dart';
 import 'package:limitless_flutter/pages/home.dart';
+import 'package:limitless_flutter/pages/login.dart';
 import 'package:limitless_flutter/theme/theme_provider.dart';
 import 'package:limitless_flutter/supabase.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +42,32 @@ class MainApp extends StatelessWidget {
       theme: lightMode,
       darkTheme: darkMode,
       themeMode: provider.mode,
-      home: const HomePage(),
+      builder: (context, child) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [AnimatedBackground(), child ?? const SizedBox.shrink()],
+        );
+      },
+      initialRoute: '/',
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+            return SlideRightToLeftPageRoute(
+              builder: (_) => const HomePage(),
+              settings: settings,
+            );
+          case '/login':
+            return SlideRightToLeftPageRoute(
+              builder: (_) => const LoginPage(),
+              settings: settings,
+            );
+          default:
+            return SlideRightToLeftPageRoute(
+              builder: (_) => const HomePage(),
+              settings: settings,
+            );
+        }
+      },
     );
   }
 }
