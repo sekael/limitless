@@ -1,12 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:limitless_flutter/components/background_image.dart';
+import 'package:limitless_flutter/components/button.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:limitless_flutter/features/quotes/presentation/quote_display.dart';
+import 'package:limitless_flutter/pages/login.dart';
 import 'package:provider/provider.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -86,10 +87,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          AnimatedBackground(),
           SafeArea(
             child: Stack(
               fit: StackFit.expand,
@@ -113,6 +114,46 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: QuoteDisplay(quote: _currentQuote!),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: AdaptiveButton(
+                            buttonText: 'Log In',
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/login');
+                            },
+                            // PageRouteBuilder(
+                            //   pageBuilder:
+                            //       (
+                            //         context,
+                            //         animation,
+                            //         secondaryAnimation,
+                            //       ) => const LoginPage(),
+                            //   transitionsBuilder:
+                            //       (
+                            //         context,
+                            //         animation,
+                            //         secondaryAnimation,
+                            //         child,
+                            //       ) {
+                            //         const begin = Offset(0.0, 1.0);
+                            //         const end = Offset.zero;
+                            //         final tween = Tween(
+                            //           begin: begin,
+                            //           end: end,
+                            //         );
+                            //         final offsetAnimation = animation.drive(
+                            //           tween,
+                            //         );
+                            //         return SlideTransition(
+                            //           position: offsetAnimation,
+                            //           child: child,
+                            //         );
+                            //       },
+                            //     ),
+                            //   );
+                            // },
+                          ),
                         ),
                       ],
                     ],
