@@ -7,7 +7,6 @@ import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:limitless_flutter/features/quotes/presentation/quote_display.dart';
-import 'package:limitless_flutter/pages/login.dart';
 import 'package:provider/provider.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -122,37 +121,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             onPressed: () {
                               Navigator.pushNamed(context, '/login');
                             },
-                            // PageRouteBuilder(
-                            //   pageBuilder:
-                            //       (
-                            //         context,
-                            //         animation,
-                            //         secondaryAnimation,
-                            //       ) => const LoginPage(),
-                            //   transitionsBuilder:
-                            //       (
-                            //         context,
-                            //         animation,
-                            //         secondaryAnimation,
-                            //         child,
-                            //       ) {
-                            //         const begin = Offset(0.0, 1.0);
-                            //         const end = Offset.zero;
-                            //         final tween = Tween(
-                            //           begin: begin,
-                            //           end: end,
-                            //         );
-                            //         final offsetAnimation = animation.drive(
-                            //           tween,
-                            //         );
-                            //         return SlideTransition(
-                            //           position: offsetAnimation,
-                            //           child: child,
-                            //         );
-                            //       },
-                            //     ),
-                            //   );
-                            // },
                           ),
                         ),
                       ],

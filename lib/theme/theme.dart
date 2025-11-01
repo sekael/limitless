@@ -1,4 +1,3 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -52,20 +51,6 @@ ThemeData themeFrom(ColorScheme scheme) {
     // Make Cupertino children look native inside Material widgets
     cupertinoOverrideTheme:
         const NoDefaultCupertinoThemeData(), // inherits iOS system fonts/colors
-    pageTransitionsTheme: PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: const SharedAxisPageTransitionsBuilder(
-          transitionType: SharedAxisTransitionType.horizontal,
-        ),
-        TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
-        TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
-        TargetPlatform.linux: const FadeThroughPageTransitionsBuilder(),
-        TargetPlatform.windows: const FadeThroughPageTransitionsBuilder(),
-        TargetPlatform.fuchsia: const SharedAxisPageTransitionsBuilder(
-          transitionType: SharedAxisTransitionType.horizontal,
-        ),
-      },
-    ),
   );
 }
 

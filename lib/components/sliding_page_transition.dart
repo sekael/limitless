@@ -5,7 +5,7 @@ class SlideRightToLeftPageRoute<T> extends PageRoute<T> {
     required this.builder,
     super.settings,
     this.duration = const Duration(milliseconds: 600),
-    this.curve = Curves.easeOutCubic,
+    this.curve = Curves.easeInOutCubic,
   });
 
   final WidgetBuilder builder;

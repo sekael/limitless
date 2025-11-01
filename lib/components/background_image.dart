@@ -10,7 +10,7 @@ class AnimatedBackground extends StatefulWidget {
     super.key,
     this.lightBackgroundImage = 'assets/images/background/light.jpg',
     this.darkBackgroundImage = 'assets/images/background/dark.jpg',
-    this.fadeDuration = const Duration(milliseconds: 1500),
+    this.fadeDuration = const Duration(seconds: 1),
     this.peakOpacity = 1.0,
   });
 
@@ -96,8 +96,8 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
 
     final goingDark = Theme.of(context).brightness == Brightness.light;
     final desired = goingDark
-        ? widget.darkBackgroundImage
-        : widget.lightBackgroundImage;
+        ? widget.lightBackgroundImage
+        : widget.darkBackgroundImage;
 
     if (desired == _currentAsset && _pendingAsset == null) return;
     if (_pendingAsset == desired && _controller.isAnimating) return;
@@ -125,7 +125,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
   Widget build(BuildContext context) {
     if (!_initialized) return const SizedBox.expand();
     final goingDark = Theme.of(context).brightness == Brightness.light;
-    final Color coverBase = goingDark ? Colors.black : Colors.white;
+    final Color coverBase = goingDark ? Colors.white : Colors.black;
 
     return AnimatedBuilder(
       animation: _controller,
