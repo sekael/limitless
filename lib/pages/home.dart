@@ -120,12 +120,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           child: AdaptiveButton(
                             buttonText: 'Log In',
                             onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const LoginPage(),
-                                ),
-                              );
+                              Navigator.pushNamed(context, '/login');
                             },
+                            // PageRouteBuilder(
+                            //   pageBuilder:
+                            //       (
+                            //         context,
+                            //         animation,
+                            //         secondaryAnimation,
+                            //       ) => const LoginPage(),
+                            //   transitionsBuilder:
+                            //       (
+                            //         context,
+                            //         animation,
+                            //         secondaryAnimation,
+                            //         child,
+                            //       ) {
+                            //         const begin = Offset(0.0, 1.0);
+                            //         const end = Offset.zero;
+                            //         final tween = Tween(
+                            //           begin: begin,
+                            //           end: end,
+                            //         );
+                            //         final offsetAnimation = animation.drive(
+                            //           tween,
+                            //         );
+                            //         return SlideTransition(
+                            //           position: offsetAnimation,
+                            //           child: child,
+                            //         );
+                            //       },
+                            //     ),
+                            //   );
+                            // },
                           ),
                         ),
                       ],

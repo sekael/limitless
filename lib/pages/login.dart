@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 // TODO: make pretty
-// TODO: investigate weird exception with Binding handler upon saving
 // TODO: make transition home -> login smoother
 
 class LoginPage extends StatefulWidget {
