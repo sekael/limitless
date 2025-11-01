@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-// TODO: make pretty
-// TODO: make transition home -> login smoother
+import 'package:limitless_flutter/components/text/title.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -58,7 +56,8 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: FractionalOffset(0.5, 0.3),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Padding(
@@ -68,10 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'Welcome back',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
+                    TitleText(titleText: 'Welcome back'),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailCtrl,
@@ -79,6 +75,9 @@ class _LoginPageState extends State<LoginPage> {
                       autofillHints: const [AutofillHints.email],
                       textInputAction: TextInputAction.done,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Email address',
                         hintText: 'you@example.com',
@@ -87,8 +86,9 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (value) {
                         final v = (value ?? '').trim();
                         if (v.isEmpty) return 'Please enter your email';
-                        if (!_emailRegExp.hasMatch(v))
+                        if (!_emailRegExp.hasMatch(v)) {
                           return 'Enter a valid email';
+                        }
                         return null;
                       },
                       onFieldSubmitted: (_) {
