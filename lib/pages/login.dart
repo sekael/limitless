@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/title.dart';
+import 'package:limitless_flutter/supabase/auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,13 +41,27 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _sendLoginCode() {
-    // TODO: hook up to Supabase magic link / OTP here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Would send login code to ${_emailCtrl.text.trim()}'),
-      ),
-    );
+  void _sendLoginCode() async {
+    final String email = _emailCtrl.text.trim();
+    try {
+      await sendEmailOtp(email);
+      if (!mounted) return;
+      Navigator.of(context).pushNamed('/verify', arguments: email);
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        ErrorSnackbar(
+          message: 'Error occurred when authenticating: ${e.message}',
+        ).build(),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        ErrorSnackbar(
+          message: 'Could not send verification code. Please try again',
+        ).build(),
+      );
+    }
   }
 
   @override
@@ -67,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TitleText(titleText: 'Welcome back'),
+                    TitleText(titleText: 'Welcome back!'),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailCtrl,
@@ -92,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                       onFieldSubmitted: (_) {
-                        if (_isValid) _sendLoginCode();
+                        _isValid ? () => _sendLoginCode() : null;
                       },
                     ),
                     const SizedBox(height: 16),
