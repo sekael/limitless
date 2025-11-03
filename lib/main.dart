@@ -6,7 +6,7 @@ import 'package:limitless_flutter/features/quotes/data/repository_adapter.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
-import 'package:limitless_flutter/pages/welcome.dart';
+import 'package:limitless_flutter/pages/dashboard.dart';
 import 'package:limitless_flutter/theme/theme_provider.dart';
 import 'package:limitless_flutter/supabase/bootstrap.dart';
 import 'package:provider/provider.dart';
@@ -68,9 +68,9 @@ class MainApp extends StatelessWidget {
               builder: (_) => const EmailOtpVerificationPage(),
               settings: settings,
             );
-          case '/welcome':
-            return MaterialPageRoute(
-              builder: (_) => WelcomePage(),
+          case '/dashboard':
+            return SlideRightToLeftPageRoute(
+              builder: (_) => const DashboardPage(),
               settings: settings,
             );
           default:

@@ -35,7 +35,9 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
       final session = response.session;
       if (session != null) {
         if (!mounted) return;
-        Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (_) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/dashboard', (_) => false);
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
