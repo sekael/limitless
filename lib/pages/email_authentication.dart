@@ -95,6 +95,9 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     maxLength: 8,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                     decoration: const InputDecoration(
                       labelText: 'OTP code',
                       counterText: '',
