@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         Padding(
                           padding: const EdgeInsets.all(18.0),
                           child: AdaptiveButton(
-                            buttonText: 'Log In',
+                            buttonText: 'Login',
                             onPressed: () {
                               Navigator.pushNamed(context, '/login');
                             },

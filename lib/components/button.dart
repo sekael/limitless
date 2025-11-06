@@ -21,10 +21,10 @@ class AdaptiveButton extends StatelessWidget {
 
     // Glass-like colors
     final baseColor = cs.primary;
-    final glassColor = baseColor.withValues(alpha: 0.2);
-    final borderColor = baseColor.withValues(alpha: 0.25);
-    final highlightStroke = Colors.white.withValues(alpha: 0.05);
-    final radius = BorderRadius.circular(12);
+    final glassColor = baseColor.withValues(alpha: 0.35);
+    final borderColor = baseColor.withValues(alpha: 0.45);
+    final highlightStroke = Colors.white.withValues(alpha: 0.15);
+    final radius = BorderRadius.circular(14);
 
     Widget glassSurface(Widget child) {
       return ClipRRect(
@@ -54,10 +54,14 @@ class AdaptiveButton extends StatelessWidget {
       );
     }
 
-    // TODO: make button text nice
     final label = Text(
       buttonText,
-      style: Theme.of(context).textTheme.labelLarge,
+      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.2,
+        height: 1.5,
+        color: cs.primary,
+      ),
       textAlign: TextAlign.center,
     );
 
@@ -66,7 +70,7 @@ class AdaptiveButton extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: glassSurface(
           CupertinoButton(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             borderRadius: radius,
             onPressed: callback,
             color: Colors.transparent,
@@ -79,17 +83,20 @@ class AdaptiveButton extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: FilledButton(
-        onPressed: callback,
-        style: FilledButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      child: glassSurface(
+        Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            borderRadius: radius,
+            onTap: callback,
+            highlightColor: baseColor.withValues(alpha: 0.1),
+            splashColor: baseColor.withValues(alpha: 0.12),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: label,
+            ),
           ),
-          visualDensity: VisualDensity.compact,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         ),
-        child: Text(buttonText),
       ),
     );
   }
