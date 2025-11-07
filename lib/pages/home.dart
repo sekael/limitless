@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:limitless_flutter/components/button.dart';
+import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/quotes/data/repository.dart';
@@ -116,11 +116,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(18.0),
-                          child: AdaptiveButton(
-                            buttonText: 'Login',
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/login');
-                            },
+                          child: SizedBox(
+                            width: 200,
+                            child: AdaptiveButton(
+                              buttonText: 'Login',
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/login');
+                              },
+                            ),
                           ),
                         ),
                       ],

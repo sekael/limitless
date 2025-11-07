@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/buttons/async_adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
+import 'package:limitless_flutter/components/text/body.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EmailOtpVerificationPage extends StatefulWidget {
@@ -8,8 +10,6 @@ class EmailOtpVerificationPage extends StatefulWidget {
   @override
   State<EmailOtpVerificationPage> createState() => _EmailOtpVerificationState();
 }
-
-// TODO: Make pretty
 
 class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
   final _verificationCodeControl = TextEditingController();
@@ -71,7 +71,7 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('Enter Code'),
+        title: const Text('Verification'),
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
       ),
@@ -84,10 +84,8 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'We emailed a 8-digit code to\n$email',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  CenterAlignedBodyText(
+                    bodyText: 'We emailed a 8-digit code to\n$email',
                   ),
                   const SizedBox(height: 16),
                   TextField(
@@ -99,7 +97,7 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     decoration: const InputDecoration(
-                      labelText: 'OTP code',
+                      labelText: 'Verification code',
                       counterText: '',
                       border: OutlineInputBorder(),
                     ),
@@ -108,15 +106,10 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    child: FilledButton(
-                      onPressed: _submitting ? null : () => _verify(email),
-                      child: _submitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Verify'),
+                    child: AdaptiveAsyncButton(
+                      buttonText: 'Verify Code',
+                      loadingText: 'Verifying ...',
+                      onPressedAsync: () => _verify(email),
                     ),
                   ),
                   const SizedBox(height: 12),

@@ -1,8 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/buttons/glass_surface.dart';
 
 class AdaptiveButton extends StatelessWidget {
   const AdaptiveButton({super.key, required this.buttonText, this.onPressed});
@@ -25,34 +24,6 @@ class AdaptiveButton extends StatelessWidget {
     final borderColor = baseColor.withValues(alpha: 0.45);
     final highlightStroke = Colors.white.withValues(alpha: 0.15);
     final radius = BorderRadius.circular(14);
-
-    Widget glassSurface(Widget child) {
-      return ClipRRect(
-        borderRadius: radius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [glassColor, glassColor.withValues(alpha: 0.1)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: radius,
-              border: Border.all(color: borderColor),
-              boxShadow: [
-                BoxShadow(
-                  color: highlightStroke,
-                  blurRadius: 0,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            child: child,
-          ),
-        ),
-      );
-    }
 
     final label = Text(
       buttonText,
@@ -77,6 +48,10 @@ class AdaptiveButton extends StatelessWidget {
             disabledColor: Colors.transparent,
             child: label,
           ),
+          radius,
+          borderColor,
+          glassColor,
+          highlightStroke,
         ),
       );
     }
@@ -97,6 +72,10 @@ class AdaptiveButton extends StatelessWidget {
             ),
           ),
         ),
+        radius,
+        borderColor,
+        glassColor,
+        highlightStroke,
       ),
     );
   }
