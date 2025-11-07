@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/async_adaptive.dart';
+import 'package:limitless_flutter/components/buttons/secondary_adaptive.dart';
+import 'package:limitless_flutter/components/buttons/secondary_async_adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
+import 'package:limitless_flutter/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EmailOtpVerificationPage extends StatefulWidget {
@@ -40,6 +43,7 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
         ).pushNamedAndRemoveUntil('/dashboard', (_) => false);
       } else {
         if (!mounted) return;
+        _verificationCodeControl.clear();
         ScaffoldMessenger.of(context).showSnackBar(
           ErrorSnackbar(
             message:
@@ -49,6 +53,7 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
       }
     } on AuthException catch (e) {
       if (!mounted) return;
+      _verificationCodeControl.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         ErrorSnackbar(
           message: 'Code verification failed: ${e.message}',
@@ -56,6 +61,7 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
       );
     } catch (_) {
       if (!mounted) return;
+      _verificationCodeControl.clear();
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(ErrorSnackbar(message: 'Something went wrong').build());
@@ -76,7 +82,8 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
         scrolledUnderElevation: 0,
       ),
       body: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: FractionalOffset(0.5, 0.3),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Padding(
@@ -112,29 +119,24 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                       onPressedAsync: () => _verify(email),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: _submitting
-                        ? null
-                        : () => Supabase.instance.client.auth
-                              .signInWithOtp(email: email) // resend
-                              .then(
-                                (_) =>
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Code resent'),
-                                      ),
-                                    ),
-                              )
-                              .catchError(
-                                (_) =>
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Could not resend'),
-                                      ),
-                                    ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SecondaryAdaptiveAsyncButton(
+                      buttonText: 'Resend Code',
+                      onPressedAsync: () => sendEmailOtp(email)
+                          .then(
+                            (_) => ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Code resent')),
+                            ),
+                          )
+                          .catchError(
+                            (_) => ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Could not resend code'),
                               ),
-                    child: const Text('Resend code'),
+                            ),
+                          ),
+                    ),
                   ),
                 ],
               ),

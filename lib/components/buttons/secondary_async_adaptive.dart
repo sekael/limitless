@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/glass_surface.dart';
 
-class AdaptiveAsyncButton extends StatefulWidget {
-  const AdaptiveAsyncButton({
+class SecondaryAdaptiveAsyncButton extends StatefulWidget {
+  const SecondaryAdaptiveAsyncButton({
     super.key,
     required this.buttonText,
     required this.onPressedAsync,
@@ -18,10 +18,11 @@ class AdaptiveAsyncButton extends StatefulWidget {
   final bool compact;
 
   @override
-  State<AdaptiveAsyncButton> createState() => _AdaptiveAsyncButtonState();
+  State<SecondaryAdaptiveAsyncButton> createState() =>
+      _AdaptiveAsyncButtonState();
 }
 
-class _AdaptiveAsyncButtonState extends State<AdaptiveAsyncButton> {
+class _AdaptiveAsyncButtonState extends State<SecondaryAdaptiveAsyncButton> {
   bool _loading = false;
 
   bool get _isCupertino =>
@@ -42,8 +43,8 @@ class _AdaptiveAsyncButtonState extends State<AdaptiveAsyncButton> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    final baseColor = cs.primary;
-    final glassColor = baseColor.withValues(alpha: 0.35);
+    final baseColor = cs.inversePrimary;
+    final glassColor = baseColor.withValues(alpha: 0.05);
     final borderColor = baseColor.withValues(alpha: 0.45);
     final highlightStroke = Colors.white.withValues(alpha: 0.15);
     final radius = BorderRadius.circular(14);

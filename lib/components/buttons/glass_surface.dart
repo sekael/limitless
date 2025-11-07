@@ -11,7 +11,7 @@ Widget glassSurface(
   return ClipRRect(
     borderRadius: radius,
     child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
