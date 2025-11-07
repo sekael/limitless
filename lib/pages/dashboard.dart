@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:limitless_flutter/components/button.dart';
+import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/supabase/auth.dart';

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/buttons/adaptive.dart';
+import 'package:limitless_flutter/components/buttons/async_adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
@@ -41,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _sendLoginCode() async {
+  Future<void> _sendLoginCode() async {
     final String email = _emailCtrl.text.trim();
     try {
       await sendEmailOtp(email);
@@ -115,9 +117,9 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
-                      child: FilledButton(
-                        onPressed: _isValid ? _sendLoginCode : null,
-                        child: const Text('Send Login Code'),
+                      child: AdaptiveAsyncButton(
+                        onPressedAsync: _sendLoginCode,
+                        buttonText: 'Send Login Code',
                       ),
                     ),
                   ],
