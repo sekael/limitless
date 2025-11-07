@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/async_adaptive.dart';
-import 'package:limitless_flutter/components/buttons/secondary_adaptive.dart';
 import 'package:limitless_flutter/components/buttons/secondary_async_adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';

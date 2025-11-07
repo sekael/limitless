@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/buttons/async_adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/title.dart';
