@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/title.dart';
+import 'package:limitless_flutter/components/theme_toggle.dart';
+import 'package:limitless_flutter/features/cookies/presentation/add_cookie.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -46,7 +48,7 @@ class _DashboardPageState extends State<DashboardPage> {
       extendBodyBehindAppBar: true,
       backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(12),
       appBar: AppBar(
-        title: const Text('Welcome to Limitless!'),
+        title: const Text('Limitless'),
         backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(12),
         scrolledUnderElevation: 0,
         actions: [
@@ -58,7 +60,22 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
       ),
-      body: Center(child: const TitleText(titleText: 'Welcome to Limitless!')),
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Column(
+              children: [
+                Center(
+                  child: const TitleText(titleText: 'Welcome to Limitless!'),
+                ),
+                SizedBox(width: 200, child: AddCookieButton()),
+              ],
+            ),
+            PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),
+          ],
+        ),
+      ),
     );
   }
 }
