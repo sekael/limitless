@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
+import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/cookies/presentation/add_cookie.dart';
@@ -45,16 +46,15 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(12),
+      backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
       appBar: AppBar(
         title: const Text('Limitless'),
-        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(12),
+        backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(32),
         scrolledUnderElevation: 0,
         actions: [
-          AdaptiveButton(
+          AdaptiveGlassButton.async(
             buttonText: _signingOut ? 'Signing out ...' : 'Log Out',
-            onPressed: () {
+            onPressed: () async {
               _signingOut ? null : _handleSignOut();
             },
           ),
@@ -64,13 +64,31 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Column(
-              children: [
-                Center(
-                  child: const TitleText(titleText: 'Welcome to Limitless!'),
-                ),
-                SizedBox(width: 200, child: AddCookieButton()),
-              ],
+            Align(
+              alignment: FractionalOffset(0.5, 0.25),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const TitleText(titleText: 'Welcome to Limitless!'),
+                  const CenterAlignedBodyText(
+                    bodyText: 'This is your personal cookie jar!',
+                  ),
+                  const CenterAlignedBodyText(
+                    bodyText:
+                        'Eat a cookie if you are craving one or bake a new one whenever you feel inspired.',
+                  ),
+                  // Spacer between text and buttons
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: 200,
+                    child: AdaptiveGlassButton.async(
+                      buttonText: 'Eat a Cookie',
+                      onPressed: () async => debugPrint('Would eat a cookie!'),
+                    ),
+                  ),
+                  SizedBox(width: 200, child: AddCookieButton()),
+                ],
+              ),
             ),
             PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),
           ],

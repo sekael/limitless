@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:limitless_flutter/components/buttons/async_adaptive.dart';
-import 'package:limitless_flutter/components/buttons/secondary_async_adaptive.dart';
+import 'package:limitless_flutter/components/buttons/adaptive.dart';
+import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
@@ -112,17 +112,18 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    child: AdaptiveAsyncButton(
+                    child: AdaptiveGlassButton.async(
                       buttonText: 'Verify Code',
                       loadingText: 'Verifying ...',
-                      onPressedAsync: () => _verify(email),
+                      onPressed: () => _verify(email),
                     ),
                   ),
                   SizedBox(
                     width: double.infinity,
-                    child: SecondaryAdaptiveAsyncButton(
+                    child: AdaptiveGlassButton.async(
                       buttonText: 'Resend Code',
-                      onPressedAsync: () => sendEmailOtp(email)
+                      intent: GlassButtonIntent.secondary,
+                      onPressed: () => sendEmailOtp(email)
                           .then(
                             (_) => ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Code resent')),

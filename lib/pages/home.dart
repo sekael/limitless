@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           padding: const EdgeInsets.all(18.0),
                           child: SizedBox(
                             width: 200,
-                            child: AdaptiveButton(
+                            child: AdaptiveGlassButton.sync(
                               buttonText: 'Login',
                               onPressed: () {
                                 Navigator.pushNamed(context, '/login');

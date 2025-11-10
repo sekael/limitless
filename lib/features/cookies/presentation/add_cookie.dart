@@ -103,8 +103,8 @@ class AddCookieButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveButton(
-      buttonText: 'Add Cookie',
+    return AdaptiveGlassButton.sync(
+      buttonText: 'Bake a Cookie',
       onPressed: () => _openAddCookieDialog(context),
     );
   }
