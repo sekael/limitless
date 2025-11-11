@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
+import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -106,6 +107,7 @@ class AddCookieButton extends StatelessWidget {
     return AdaptiveGlassButton.sync(
       buttonText: 'Bake a Cookie',
       onPressed: () => _openAddCookieDialog(context),
+      leadingIcon: const TextIcon(icon: '🧑‍🍳', semanticLabel: 'Baker'),
     );
   }
 }

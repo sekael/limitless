@@ -10,6 +10,8 @@ class AdaptiveGlassButton extends StatefulWidget {
   final GlassButtonIntent intent;
   final bool compact;
 
+  final Widget? leadingIcon;
+
   final Future<void> Function()? onPressedAsync;
 
   const AdaptiveGlassButton._internal({
@@ -19,6 +21,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     this.onPressedAsync,
     this.loadingText,
     this.compact = true,
+    this.leadingIcon,
   }) : assert(onPressedAsync != null, 'Use .sync or .async factories.');
 
   factory AdaptiveGlassButton.async({
@@ -28,6 +31,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     GlassButtonIntent intent = GlassButtonIntent.primary,
     String? loadingText,
     bool compact = true,
+    Widget? leadingIcon,
   }) {
     return AdaptiveGlassButton._internal(
       key: key,
@@ -36,6 +40,7 @@ class AdaptiveGlassButton extends StatefulWidget {
       intent: intent,
       loadingText: loadingText,
       compact: compact,
+      leadingIcon: leadingIcon,
     );
   }
 
@@ -45,6 +50,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     required VoidCallback onPressed,
     GlassButtonIntent intent = GlassButtonIntent.primary,
     bool compact = true,
+    Widget? leadingIcon,
   }) {
     return AdaptiveGlassButton._internal(
       key: key,
@@ -53,6 +59,7 @@ class AdaptiveGlassButton extends StatefulWidget {
       onPressedAsync: () async => onPressed(),
       intent: intent,
       compact: compact,
+      leadingIcon: leadingIcon,
     );
   }
 
@@ -96,23 +103,32 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
     );
 
     // Common content (row with optional spinner)
-    Widget content({required bool cupertino}) {
+    Widget content({required bool cupertino, required Widget? leadingIcon}) {
+      const double kSpin = 18;
       final spinner = cupertino
           ? const CupertinoActivityIndicator(radius: 9)
           : const SizedBox(
-              width: 18,
-              height: 18,
+              width: kSpin,
+              height: kSpin,
               child: CircularProgressIndicator(strokeWidth: 2),
             );
 
       // Cupertino style
       if (cupertino) {
-        return Stack(
-          alignment: AlignmentGeometry.centerLeft,
+        return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(width: 18, height: 18, child: _loading ? spinner : null),
-            if (_loading) const SizedBox(width: 8),
-            if (_loading) Flexible(child: label) else label,
+            SizedBox(
+              width: kSpin,
+              height: kSpin,
+              child: _loading ? spinner : null,
+            ),
+            const SizedBox(width: 8),
+            // Optional leading icon
+            if (leadingIcon != null) ...[leadingIcon, const SizedBox(width: 8)],
+            Flexible(child: label),
+            // Ghost box to keep label centered
+            const SizedBox(width: kSpin, height: kSpin),
           ],
         );
       }
@@ -121,9 +137,16 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(width: 18, height: 18, child: _loading ? spinner : null),
-          if (_loading) const SizedBox(width: 8),
-          if (_loading) Flexible(child: label) else label,
+          SizedBox(
+            width: kSpin,
+            height: kSpin,
+            child: _loading ? spinner : null,
+          ),
+          const SizedBox(width: 8),
+          // Optional leading icon
+          if (leadingIcon != null) ...[leadingIcon, const SizedBox(width: 8)],
+          Flexible(child: label),
+          const SizedBox(width: kSpin, height: kSpin),
         ],
       );
     }
@@ -150,7 +173,15 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
             onPressed: _loading ? null : _handlePress,
             color: Colors.transparent,
             disabledColor: Colors.transparent,
-            child: content(cupertino: true),
+            child: content(
+              cupertino: true,
+              leadingIcon: widget.leadingIcon == null
+                  ? null
+                  : IconTheme(
+                      data: IconThemeData(size: 18, color: style.baseColor),
+                      child: widget.leadingIcon!,
+                    ),
+            ),
           ),
         ),
       );
@@ -171,7 +202,15 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
             splashColor: splashColor,
             child: Padding(
               padding: childPadding,
-              child: content(cupertino: false),
+              child: content(
+                cupertino: false,
+                leadingIcon: widget.leadingIcon == null
+                    ? null
+                    : IconTheme(
+                        data: IconThemeData(size: 18, color: style.baseColor),
+                        child: widget.leadingIcon!,
+                      ),
+              ),
             ),
           ),
         ),

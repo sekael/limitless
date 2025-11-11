@@ -5,6 +5,7 @@ import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/cookies/presentation/add_cookie.dart';
+import 'package:limitless_flutter/features/cookies/presentation/eat_cookie.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -79,14 +80,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   // Spacer between text and buttons
                   const SizedBox(height: 12),
-                  SizedBox(
-                    width: 200,
-                    child: AdaptiveGlassButton.async(
-                      buttonText: 'Eat a Cookie',
-                      onPressed: () async => debugPrint('Would eat a cookie!'),
-                    ),
-                  ),
-                  SizedBox(width: 200, child: AddCookieButton()),
+                  SizedBox(width: 250, child: EatCookieButton()),
+                  SizedBox(width: 250, child: AddCookieButton()),
                 ],
               ),
             ),

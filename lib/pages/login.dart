@@ -119,6 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: AdaptiveGlassButton.async(
                         onPressed: _sendLoginCode,
                         buttonText: 'Send Login Code',
+                        loadingText: 'Sending Code ...',
                       ),
                     ),
                   ],
