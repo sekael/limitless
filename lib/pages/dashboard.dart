@@ -80,6 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   // Spacer between text and buttons
                   const SizedBox(height: 12),
+                  // TODO: don't display spinner when eating/adding cookie
                   SizedBox(width: 250, child: EatCookieButton()),
                   SizedBox(width: 250, child: AddCookieButton()),
                 ],

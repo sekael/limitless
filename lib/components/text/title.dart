@@ -23,6 +23,7 @@ class TitleText extends StatelessWidget {
             Theme.of(context).textTheme.displayMedium?.copyWith(
               color: colorOverride ?? Theme.of(context).colorScheme.onSurface,
             ),
+        textAlign: TextAlign.center,
       ),
     );
   }

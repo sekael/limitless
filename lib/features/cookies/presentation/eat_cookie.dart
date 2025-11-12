@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
-import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/features/cookies/presentation/add_cookie.dart';
+import 'package:limitless_flutter/features/cookies/presentation/cookie_card.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -106,46 +106,14 @@ class _CookieView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const TextIcon(icon: '🍪', semanticLabel: 'Cookie'),
-        const SizedBox(height: 12),
-        TitleText(titleText: 'You ate a cookie!'),
-        const SizedBox(height: 12),
-        // The accomplishment itself
-        Text(
-          '“$text”',
-          style: t.headlineSmall?.copyWith(
-            fontStyle: FontStyle.italic,
-            color: Theme.of(context).colorScheme.inversePrimary,
-          ),
-
-          textAlign: TextAlign.center,
-        ),
-        if (createdAt != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            'Saved on ${_formatDate(createdAt!)}',
-            style: t.bodySmall?.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-        const SizedBox(height: 16),
-        FilledButton(
-          onPressed: () => Navigator.of(context).maybePop(),
-          child: const Text('Nice!'),
+        CookieCard(
+          text: text,
+          createdAt: createdAt,
+          onClose: () => Navigator.of(context).maybePop(),
         ),
       ],
     );
   }
-
-  String _formatDate(DateTime dt) {
-    return '${_twoDigit(dt.day)}.${_twoDigit(dt.month)}.${dt.year}';
-  }
-
-  String _twoDigit(int value) => value < 10 ? '0$value' : '$value';
 }
 
 class _EmptyJar extends StatelessWidget {
@@ -162,14 +130,28 @@ class _EmptyJar extends StatelessWidget {
         const TextIcon(icon: '🥣', semanticLabel: 'Empty Jar'),
         const SizedBox(height: 12),
         Text(
-          'Cookie Jar Empty',
-          style: t.titleLarge,
+          'Your cookie jar is empty',
+          style: t.titleLarge!.copyWith(
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        Text(message, style: t.bodyMedium, textAlign: TextAlign.center),
+        Text(
+          message,
+          style: t.bodyMedium!.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 16),
+        // TODO: align width of buttons
         AddCookieButton(),
+        AdaptiveGlassButton.sync(
+          buttonText: 'Not Baking Today',
+          onPressed: () => Navigator.of(context).maybePop(),
+          leadingIcon: const TextIcon(icon: '💆', semanticLabel: 'Relax'),
+        ),
       ],
     );
   }
