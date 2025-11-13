@@ -40,6 +40,7 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
   return null;
 }
 
+// TODO: make this adaptive to screen width (desktop/mobile)
 Future<void> _showCookieSheet(BuildContext context, {required Widget child}) {
   return showModalBottomSheet<void>(
     context: context,

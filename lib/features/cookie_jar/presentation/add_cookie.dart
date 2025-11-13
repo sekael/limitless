@@ -23,6 +23,7 @@ class AddCookieButton extends StatelessWidget {
     final controller = TextEditingController();
     bool submitting = false;
 
+    // TODO: make dialog look nicer
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
