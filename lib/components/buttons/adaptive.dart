@@ -6,6 +6,7 @@ import 'package:limitless_flutter/components/buttons/glass_surface.dart';
 
 class AdaptiveGlassButton extends StatefulWidget {
   final String buttonText;
+  final bool showSpinner;
   final String? loadingText;
   final GlassButtonIntent intent;
   final bool compact;
@@ -17,6 +18,7 @@ class AdaptiveGlassButton extends StatefulWidget {
   const AdaptiveGlassButton._internal({
     super.key,
     required this.buttonText,
+    required this.showSpinner,
     required this.intent,
     this.onPressedAsync,
     this.loadingText,
@@ -29,6 +31,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     required String buttonText,
     required Future<void> Function() onPressed,
     GlassButtonIntent intent = GlassButtonIntent.primary,
+    bool showSpinner = true,
     String? loadingText,
     bool compact = true,
     Widget? leadingIcon,
@@ -36,6 +39,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     return AdaptiveGlassButton._internal(
       key: key,
       buttonText: buttonText,
+      showSpinner: showSpinner,
       onPressedAsync: onPressed,
       intent: intent,
       loadingText: loadingText,
@@ -55,6 +59,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     return AdaptiveGlassButton._internal(
       key: key,
       buttonText: buttonText,
+      showSpinner: false,
       // Wrap VoidCallBack into a Future
       onPressedAsync: () async => onPressed(),
       intent: intent,
@@ -118,17 +123,21 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: kSpin,
-              height: kSpin,
-              child: _loading ? spinner : null,
-            ),
-            const SizedBox(width: 8),
+            if (widget.showSpinner) ...[
+              SizedBox(
+                width: kSpin,
+                height: kSpin,
+                child: _loading ? spinner : null,
+              ),
+              const SizedBox(width: 8),
+            ],
             // Optional leading icon
             if (leadingIcon != null) ...[leadingIcon, const SizedBox(width: 8)],
             Flexible(child: label),
-            // Ghost box to keep label centered
-            const SizedBox(width: kSpin, height: kSpin),
+            if (widget.showSpinner) ...[
+              // Ghost box to keep label centered
+              const SizedBox(width: kSpin, height: kSpin),
+            ],
           ],
         );
       }
@@ -137,16 +146,20 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: kSpin,
-            height: kSpin,
-            child: _loading ? spinner : null,
-          ),
-          const SizedBox(width: 8),
+          if (widget.showSpinner) ...[
+            SizedBox(
+              width: kSpin,
+              height: kSpin,
+              child: _loading ? spinner : null,
+            ),
+            const SizedBox(width: 8),
+          ],
           // Optional leading icon
           if (leadingIcon != null) ...[leadingIcon, const SizedBox(width: 8)],
           Flexible(child: label),
-          const SizedBox(width: kSpin, height: kSpin),
+          if (widget.showSpinner) ...[
+            const SizedBox(width: kSpin, height: kSpin),
+          ],
         ],
       );
     }

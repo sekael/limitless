@@ -125,6 +125,7 @@ class EatCookieButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AdaptiveGlassButton.async(
       buttonText: 'Eat a Cookie',
+      showSpinner: false,
       onPressed: () async {
         final cookie = await _eatCookie(context);
         if (!context.mounted) return;
