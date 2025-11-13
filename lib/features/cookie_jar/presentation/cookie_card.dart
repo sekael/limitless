@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 
 class CookieCard extends StatelessWidget {
   const CookieCard({
     super.key,
-    required this.text,
-    this.createdAt,
+    required this.cookie,
     this.onClose,
     this.onBake,
   });
 
-  final String text;
-  final DateTime? createdAt;
+  final Cookie cookie;
   final VoidCallback? onClose;
   final VoidCallback? onBake;
 
@@ -25,25 +24,23 @@ class CookieCard extends StatelessWidget {
         const TextIcon(icon: '🍪', semanticLabel: 'Cookie'),
         const SizedBox(height: 12),
         Text(
-          '"$text"',
+          '"${cookie.content}"',
           style: t.titleLarge!.copyWith(
             fontStyle: FontStyle.italic,
             color: Theme.of(context).colorScheme.inversePrimary,
           ),
           textAlign: TextAlign.center,
         ),
-        if (createdAt != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            'You baked this cookie on ${_formatDate(createdAt!)}',
-            style: t.bodySmall!.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-            textAlign: TextAlign.center,
+        const SizedBox(height: 8),
+        Text(
+          'You baked this cookie on ${_formatDate(cookie.createdAt)}',
+          style: t.bodySmall!.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
-        ],
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,

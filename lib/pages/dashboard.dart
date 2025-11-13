@@ -4,8 +4,8 @@ import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
-import 'package:limitless_flutter/features/cookies/presentation/add_cookie.dart';
-import 'package:limitless_flutter/features/cookies/presentation/eat_cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -80,7 +80,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   // Spacer between text and buttons
                   const SizedBox(height: 12),
-                  // TODO: don't display spinner when eating/adding cookie
                   SizedBox(width: 250, child: EatCookieButton()),
                   SizedBox(width: 250, child: AddCookieButton()),
                 ],

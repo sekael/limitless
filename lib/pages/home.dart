@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
-import 'package:limitless_flutter/features/quotes/data/repository.dart';
+import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:limitless_flutter/features/quotes/presentation/quote_display.dart';
 import 'package:provider/provider.dart';

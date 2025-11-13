@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
-import 'package:limitless_flutter/features/quotes/data/repository.dart';
-import 'package:limitless_flutter/features/quotes/data/repository_adapter.dart';
+import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
+import 'package:limitless_flutter/features/quotes/data/quotes_repository_adapter.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';

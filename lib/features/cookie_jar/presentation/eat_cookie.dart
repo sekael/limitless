@@ -1,56 +1,28 @@
-import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
-import 'package:limitless_flutter/features/cookies/presentation/add_cookie.dart';
-import 'package:limitless_flutter/features/cookies/presentation/cookie_card.dart';
+import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
 import 'package:limitless_flutter/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Supabase database definitions
-const _table = 'accomplishments';
-const _textColumn = 'content';
-
-Future<void> _eatCookie(BuildContext context) async {
-  final client = getSupabaseClient();
+Future<Cookie?> _eatCookie(BuildContext context) async {
   final user = getCurrentUser();
 
   if (user == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       ErrorSnackbar(message: 'You must be logged in to add a cookie.').build(),
     );
-    return;
+    return null;
   }
 
-  final userId = user.id;
-
   try {
-    final rows = await client
-        .from(_table)
-        .select('id, $_textColumn, created_at')
-        .eq('user_id', userId);
-    if (rows.isEmpty) {
-      await _showCookieSheet(
-        context,
-        child: _EmptyJar(
-          message:
-              'Your cookie jar is empty.\nBake a cookie to celebrate a win!',
-        ),
-      );
-      return;
-    }
-
-    final i = Random().nextInt(rows.length);
-    final row = rows[i];
-    final String cookieText = (row[_textColumn] ?? '').toString();
-    final DateTime? createdAt = _tryParseDateTime(row['created_at']);
-
-    await _showCookieSheet(
-      context,
-      child: _CookieView(text: cookieText, createdAt: createdAt),
-    );
+    return CookieRepositoryAdapter().getRandomCookieForUser(user.id);
   } on AuthException catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       ErrorSnackbar(
@@ -61,19 +33,11 @@ Future<void> _eatCookie(BuildContext context) async {
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       ErrorSnackbar(
-        message: 'Something went wrong trying to get your cookies.',
+        message: 'Something went wrong trying to get your cookies.\n$e',
       ).build(),
     );
   }
-}
-
-DateTime? _tryParseDateTime(dynamic value) {
-  if (value == null) return null;
-  try {
-    return DateTime.parse(value.toString());
-  } catch (_) {
-    return null;
-  }
+  return null;
 }
 
 Future<void> _showCookieSheet(BuildContext context, {required Widget child}) {
@@ -95,20 +59,17 @@ Future<void> _showCookieSheet(BuildContext context, {required Widget child}) {
 }
 
 class _CookieView extends StatelessWidget {
-  const _CookieView({required this.text, this.createdAt});
+  const _CookieView({required this.cookie});
 
-  final String text;
-  final DateTime? createdAt;
+  final Cookie cookie;
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         CookieCard(
-          text: text,
-          createdAt: createdAt,
+          cookie: cookie,
           onClose: () => Navigator.of(context).maybePop(),
         ),
       ],
@@ -164,7 +125,22 @@ class EatCookieButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AdaptiveGlassButton.async(
       buttonText: 'Eat a Cookie',
-      onPressed: () => _eatCookie(context),
+      onPressed: () async {
+        final cookie = await _eatCookie(context);
+        if (!context.mounted) return;
+        if (cookie == null) {
+          unawaited(
+            _showCookieSheet(
+              context,
+              child: _EmptyJar(message: 'Bake a cookie today!'),
+            ),
+          );
+          return;
+        }
+        unawaited(
+          _showCookieSheet(context, child: _CookieView(cookie: cookie)),
+        );
+      },
       leadingIcon: const TextIcon(icon: '🍪', semanticLabel: 'Cookie'),
     );
   }
