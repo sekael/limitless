@@ -21,7 +21,7 @@ class CookieCard extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const TextIcon(icon: '🍪', semanticLabel: 'Cookie'),
+        const TextIcon(icon: '🍪', semanticLabel: 'Cookie', fontSize: 32),
         const SizedBox(height: 12),
         Text(
           '"${cookie.content}"',

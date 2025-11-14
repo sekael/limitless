@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
-import 'package:limitless_flutter/supabase/auth.dart';
+import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddCookieButton extends StatelessWidget {
@@ -23,7 +23,7 @@ class AddCookieButton extends StatelessWidget {
     final controller = TextEditingController();
     bool submitting = false;
 
-    // TODO: make dialog look nicer
+    // TODO: make dialog look nicer and use same design as for eating a cookie
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -47,7 +47,7 @@ class AddCookieButton extends StatelessWidget {
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cookie added! 🎉')),
+                    const SnackBar(content: Text('Cookie added!')),
                   );
                 }
               } on PostgrestException catch (e) {
@@ -108,7 +108,7 @@ class AddCookieButton extends StatelessWidget {
     return AdaptiveGlassButton.sync(
       buttonText: 'Bake a Cookie',
       onPressed: () => _openAddCookieDialog(context),
-      leadingIcon: const TextIcon(icon: '🧑‍🍳', semanticLabel: 'Baker'),
+      leadingIcon: const TextIcon(icon: '👩🏼‍🍳', semanticLabel: 'Baker'),
     );
   }
 }

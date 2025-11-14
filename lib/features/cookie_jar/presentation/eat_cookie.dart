@@ -8,7 +8,7 @@ import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_ada
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
-import 'package:limitless_flutter/supabase/auth.dart';
+import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<Cookie?> _eatCookie(BuildContext context) async {
@@ -40,23 +40,45 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
   return null;
 }
 
-// TODO: make this adaptive to screen width (desktop/mobile)
-Future<void> _showCookieSheet(BuildContext context, {required Widget child}) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: false,
-    showDragHandle: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (_) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        child: child,
+Future<void> showAdaptiveCookieReveal(
+  BuildContext context,
+  Widget content,
+) async {
+  final size = MediaQuery.sizeOf(context);
+  final isWide = size.width >= 720;
+
+  if (!isWide) {
+    // Mobile or small screens
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-    ),
-  );
+      constraints: BoxConstraints(minWidth: size.width, maxWidth: size.width),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          child: content,
+        ),
+      ),
+    );
+  } else {
+    // Desktop and wide screens
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 720),
+          child: Padding(padding: const EdgeInsets.all(24), child: content),
+        ),
+      ),
+    );
+  }
 }
 
 class _CookieView extends StatelessWidget {
@@ -89,7 +111,7 @@ class _EmptyJar extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const TextIcon(icon: '🥣', semanticLabel: 'Empty Jar'),
+        const TextIcon(icon: '🫙', semanticLabel: 'Empty Jar', fontSize: 32),
         const SizedBox(height: 12),
         Text(
           'Your cookie jar is empty',
@@ -107,12 +129,22 @@ class _EmptyJar extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
-        // TODO: align width of buttons
-        AddCookieButton(),
-        AdaptiveGlassButton.sync(
-          buttonText: 'Not Baking Today',
-          onPressed: () => Navigator.of(context).maybePop(),
-          leadingIcon: const TextIcon(icon: '💆', semanticLabel: 'Relax'),
+        IntrinsicWidth(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AddCookieButton(),
+              AdaptiveGlassButton.sync(
+                buttonText: 'Not Baking Today',
+                onPressed: () => Navigator.of(context).maybePop(),
+                leadingIcon: const TextIcon(
+                  icon: '️🧘🏽‍♀️',
+                  semanticLabel: 'Relax',
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -132,15 +164,15 @@ class EatCookieButton extends StatelessWidget {
         if (!context.mounted) return;
         if (cookie == null) {
           unawaited(
-            _showCookieSheet(
+            showAdaptiveCookieReveal(
               context,
-              child: _EmptyJar(message: 'Bake a cookie today!'),
+              _EmptyJar(message: 'Bake a cookie today!'),
             ),
           );
           return;
         }
         unawaited(
-          _showCookieSheet(context, child: _CookieView(cookie: cookie)),
+          showAdaptiveCookieReveal(context, _CookieView(cookie: cookie)),
         );
       },
       leadingIcon: const TextIcon(icon: '🍪', semanticLabel: 'Cookie'),

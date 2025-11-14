@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
+import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
-import 'package:limitless_flutter/supabase/auth.dart';
+import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// TODO: implement dashboard
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -71,6 +71,13 @@ class _DashboardPageState extends State<DashboardPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const TitleText(titleText: 'Welcome to Limitless!'),
+                  const SizedBox(height: 8),
+                  const TextIcon(
+                    icon: '🍯',
+                    semanticLabel: 'Honey Jar',
+                    fontSize: 32,
+                  ),
+                  const SizedBox(height: 16),
                   const CenterAlignedBodyText(
                     bodyText: 'This is your personal cookie jar!',
                   ),

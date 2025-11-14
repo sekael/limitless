@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
-import 'package:limitless_flutter/supabase/auth.dart';
+import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const _table = 'accomplishments';

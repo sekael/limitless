@@ -5,24 +5,24 @@ class TextIcon extends StatelessWidget {
   final String? semanticLabel;
 
   // Visual size in logical pixels
-  final double size;
+  final double fontSize;
 
   const TextIcon({
     super.key,
     required this.icon,
     this.semanticLabel,
-    this.size = 18,
+    this.fontSize = 16,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: size,
-      height: size,
+      width: fontSize + 2,
+      height: fontSize + 2,
       child: Text(
         icon,
         semanticsLabel: semanticLabel,
-        style: TextStyle(fontSize: 16, height: 1),
+        style: TextStyle(fontSize: fontSize, height: 1),
       ),
     );
   }

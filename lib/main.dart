@@ -7,17 +7,15 @@ import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
-import 'package:limitless_flutter/theme/theme_provider.dart';
-import 'package:limitless_flutter/supabase/bootstrap.dart';
+import 'package:limitless_flutter/config/theme/theme_provider.dart';
+import 'package:limitless_flutter/core/supabase/bootstrap.dart';
 import 'package:provider/provider.dart';
-import 'theme/theme.dart';
+import 'config/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SupabaseClient supabase = await SupabaseBootstrap.initializeClientFromFile(
-    'prod.env',
-  );
+  SupabaseClient supabase = await initializeClientFromFile('prod.env');
 
   runApp(
     MultiProvider(
