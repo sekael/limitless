@@ -9,6 +9,7 @@ import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<Cookie?> _eatCookie(BuildContext context) async {
@@ -38,47 +39,6 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
     );
   }
   return null;
-}
-
-Future<void> showAdaptiveCookieReveal(
-  BuildContext context,
-  Widget content,
-) async {
-  final size = MediaQuery.sizeOf(context);
-  final isWide = size.width >= 720;
-
-  if (!isWide) {
-    // Mobile or small screens
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      constraints: BoxConstraints(minWidth: size.width, maxWidth: size.width),
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: content,
-        ),
-      ),
-    );
-  } else {
-    // Desktop and wide screens
-    await showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 720),
-          child: Padding(padding: const EdgeInsets.all(24), child: content),
-        ),
-      ),
-    );
-  }
 }
 
 class _CookieView extends StatelessWidget {

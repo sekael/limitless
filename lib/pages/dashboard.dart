@@ -5,8 +5,8 @@ import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
-import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

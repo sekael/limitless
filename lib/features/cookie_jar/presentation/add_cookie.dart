@@ -1,18 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
+import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AddCookieButton extends StatelessWidget {
-  const AddCookieButton({super.key});
+class _AddCookieView extends StatefulWidget {
+  const _AddCookieView({required this.rootContext});
 
-  Future<void> _openAddCookieDialog(BuildContext context) async {
+  final BuildContext rootContext;
+
+  @override
+  State<_AddCookieView> createState() => _AddCookieViewState();
+}
+
+class _AddCookieViewState extends State<_AddCookieView> {
+  final _formKey = GlobalKey<FormState>();
+  final _controller = TextEditingController();
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_submitting) return;
+    final form = _formKey.currentState;
+    if (form == null || !form.validate()) return;
+
     final client = getSupabaseClient();
     final user = getCurrentUser();
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(widget.rootContext).showSnackBar(
         ErrorSnackbar(
           message: 'You must be logged in to add a cookie.',
         ).build(),
@@ -20,94 +43,113 @@ class AddCookieButton extends StatelessWidget {
       return;
     }
 
-    final controller = TextEditingController();
-    bool submitting = false;
+    setState(() => _submitting = true);
+    final text = _controller.text.trim();
 
-    // TODO: make dialog look nicer and use same design as for eating a cookie
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setState) {
-            Future<void> submit() async {
-              final text = controller.text.trim();
-              if (text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Type something first 🙂')),
-                );
-                return;
-              }
-              setState(() => submitting = true);
-              try {
-                await client.from('accomplishments').insert({
-                  'user_id': user.id,
-                  'content': text,
-                });
-                if (ctx.mounted) Navigator.of(ctx).pop();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cookie added!')),
-                  );
-                }
-              } on PostgrestException catch (e) {
-                setState(() => submitting = false);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to add cookie: ${e.message}')),
-                );
-              } catch (_) {
-                setState(() => submitting = false);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Something went wrong.')),
-                );
-              }
-            }
-
-            return AlertDialog(
-              title: const Text('Add Cookie'),
-              content: TextField(
-                controller: controller,
-                autofocus: true,
-                maxLength: 200,
-                minLines: 1,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  hintText: "What did you accomplish?",
-                  border: OutlineInputBorder(),
-                ),
-                onSubmitted: (_) {
-                  if (!submitting) submit();
-                },
-              ),
-              actions: [
-                TextButton(
-                  onPressed: submitting ? null : () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancel'),
-                ),
-                FilledButton(
-                  onPressed: submitting ? null : submit,
-                  child: submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Submit'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-    controller.dispose();
+    try {
+      await client.from('accomplishments').insert({
+        'user_id': user.id,
+        'content': text,
+      });
+      if (Navigator.of(context).mounted) Navigator.of(context).pop();
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Cookie added!')));
+      }
+    } on PostgrestException catch (e) {
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add cookie: ${e.message}')),
+      );
+    } catch (_) {
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Something went wrong.')));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const TextIcon(
+          icon: '👩🏼‍🍳',
+          semanticLabel: 'Bake Cookie',
+          fontSize: 32,
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Bake a cookie!',
+          style: t.titleLarge!.copyWith(
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        CenterAlignedBodyText(
+          bodyText:
+              'What is something you are proud of or a moment you thoroughly cherish?',
+        ),
+        const SizedBox(height: 16),
+        Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _controller,
+            autofocus: true,
+            minLines: 3,
+            maxLines: 5,
+            style: t.bodyMedium!.copyWith(
+              color: Theme.of(context).colorScheme.inverseSurface,
+            ),
+            maxLength: 280,
+            textInputAction: TextInputAction.done,
+            decoration: const InputDecoration(
+              labelText: 'Your accomplishment',
+              hintText: 'Finished my first 5K!',
+              border: OutlineInputBorder(),
+            ),
+            validator: (v) {
+              final s = v?.trim() ?? '';
+              if (s.isEmpty) return 'Please write about something you enjoyed';
+              if (s.length < 3) return 'That seems a little short';
+              return null;
+            },
+            onFieldSubmitted: (_) => _submit(),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+              child: const Text('Not Baking Today'),
+            ),
+            AdaptiveGlassButton.async(
+              buttonText: 'Bake the Cookie',
+              onPressed: _submit,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class AddCookieButton extends StatelessWidget {
+  const AddCookieButton({super.key});
+  @override
+  Widget build(BuildContext context) {
     return AdaptiveGlassButton.sync(
       buttonText: 'Bake a Cookie',
-      onPressed: () => _openAddCookieDialog(context),
+      onPressed: () => showAdaptiveCookieReveal(
+        context,
+        _AddCookieView(rootContext: context),
+      ),
       leadingIcon: const TextIcon(icon: '👩🏼‍🍳', semanticLabel: 'Baker'),
     );
   }
