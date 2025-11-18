@@ -65,31 +65,34 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Align(
-              alignment: FractionalOffset(0.5, 0.25),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const TitleText(titleText: 'Welcome to Limitless!'),
-                  const SizedBox(height: 8),
-                  const TextIcon(
-                    icon: '🍯',
-                    semanticLabel: 'Honey Jar',
-                    fontSize: 32,
-                  ),
-                  const SizedBox(height: 16),
-                  const CenterAlignedBodyText(
-                    bodyText: 'This is your personal cookie jar!',
-                  ),
-                  const CenterAlignedBodyText(
-                    bodyText:
-                        'Eat a cookie if you are craving one or bake a new one whenever you feel inspired.',
-                  ),
-                  // Spacer between text and buttons
-                  const SizedBox(height: 12),
-                  SizedBox(width: 250, child: EatCookieButton()),
-                  SizedBox(width: 250, child: AddCookieButton()),
-                ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Align(
+                alignment: FractionalOffset(0.5, 0.25),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const TitleText(titleText: 'Welcome to Limitless!'),
+                    const SizedBox(height: 8),
+                    const TextIcon(
+                      icon: '🍯',
+                      semanticLabel: 'Honey Jar',
+                      fontSize: 32,
+                    ),
+                    const SizedBox(height: 16),
+                    const CenterAlignedBodyText(
+                      bodyText: 'This is your personal cookie jar!',
+                    ),
+                    const CenterAlignedBodyText(
+                      bodyText:
+                          'Eat a cookie if you are craving one or bake a new one whenever you feel inspired.',
+                    ),
+                    // Spacer between text and buttons
+                    const SizedBox(height: 12),
+                    SizedBox(width: 250, child: EatCookieButton()),
+                    SizedBox(width: 250, child: AddCookieButton()),
+                  ],
+                ),
               ),
             ),
             PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),

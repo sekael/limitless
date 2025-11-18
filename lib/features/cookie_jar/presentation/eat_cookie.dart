@@ -22,6 +22,7 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
     return null;
   }
 
+  // TODO: cache a bunch of cookies in frontend and display from there (also make mechanism to not show same cookie multiple times)
   try {
     return CookieRepositoryAdapter().getRandomCookieForUser(user.id);
   } on AuthException catch (e) {

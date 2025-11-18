@@ -24,9 +24,9 @@ class CookieCard extends StatelessWidget {
         const TextIcon(icon: '🍪', semanticLabel: 'Cookie', fontSize: 32),
         const SizedBox(height: 12),
         Text(
-          '"${cookie.content}"',
+          cookie.content,
           style: t.titleLarge!.copyWith(
-            fontStyle: FontStyle.italic,
+            fontStyle: FontStyle.normal,
             color: Theme.of(context).colorScheme.inversePrimary,
           ),
           textAlign: TextAlign.center,
