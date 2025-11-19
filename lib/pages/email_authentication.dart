@@ -123,19 +123,22 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                     child: AdaptiveGlassButton.async(
                       buttonText: 'Resend Code',
                       intent: GlassButtonIntent.secondary,
-                      onPressed: () => sendEmailOtp(email)
-                          .then(
-                            (_) => ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Code resent')),
-                            ),
-                          )
-                          .catchError(
-                            (_) => ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Could not resend code'),
+                      onPressed: () {
+                        final messenger = ScaffoldMessenger.of(context);
+                        return sendEmailOtp(email)
+                            .then(
+                              (_) => messenger.showSnackBar(
+                                const SnackBar(content: Text('Code resent')),
                               ),
-                            ),
-                          ),
+                            )
+                            .catchError(
+                              (_) => messenger.showSnackBar(
+                                ErrorSnackbar(
+                                  message: 'Could not resend code',
+                                ).build(),
+                              ),
+                            );
+                      },
                     ),
                   ),
                 ],

@@ -32,10 +32,12 @@ class _AddCookieViewState extends State<_AddCookieView> {
     final form = _formKey.currentState;
     if (form == null || !form.validate()) return;
 
+    final messenger = ScaffoldMessenger.of(widget.rootContext);
+
     final client = getSupabaseClient();
     final user = getCurrentUser();
     if (user == null) {
-      ScaffoldMessenger.of(widget.rootContext).showSnackBar(
+      messenger.showSnackBar(
         ErrorSnackbar(
           message: 'You must be logged in to add a cookie.',
         ).build(),
@@ -51,22 +53,21 @@ class _AddCookieViewState extends State<_AddCookieView> {
         'user_id': user.id,
         'content': text,
       });
+
       if (Navigator.of(context).mounted) Navigator.of(context).pop();
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Cookie added!')));
+        messenger.showSnackBar(const SnackBar(content: Text('Cookie added!')));
       }
     } on PostgrestException catch (e) {
       setState(() => _submitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add cookie: ${e.message}')),
+      messenger.showSnackBar(
+        ErrorSnackbar(message: 'Failed to add cookie: ${e.message}').build(),
       );
     } catch (_) {
       setState(() => _submitting = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Something went wrong.')));
+      messenger.showSnackBar(
+        ErrorSnackbar(message: 'Something went wrong.').build(),
+      );
     }
   }
 
