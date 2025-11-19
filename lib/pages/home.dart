@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:limitless_flutter/features/quotes/presentation/quote_display.dart';
 import 'package:provider/provider.dart';
-import 'package:talker_flutter/talker_flutter.dart';
-
-final talker = TalkerFlutter.init();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -49,7 +47,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (!mounted) return;
 
       if (items.isEmpty) {
-        talker.warning('Could not retrieve any items from the repository');
+        logger.w('Could not retrieve any items from the repository');
         setState(() {
           _currentQuote = null;
           _isLoading = false;
@@ -57,21 +55,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return;
       }
 
-      talker.info(
-        'Successfully retrieved ${items.length} items from repository',
-      );
+      logger.i('Successfully retrieved ${items.length} items from repository');
 
       final r = Random.secure();
       final idx = r.nextInt(items.length);
       final randomQuote = items[idx];
-      talker.info('Successfully picked random quote');
+      logger.i('Successfully picked random quote');
 
       setState(() {
         _currentQuote = randomQuote;
         _isLoading = false;
       });
     } catch (e) {
-      talker.error(
+      logger.e(
         'An error occurred while loading and picking quote: ${e.toString()}',
       );
       if (!mounted) return;
