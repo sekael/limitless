@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
+import 'package:limitless_flutter/core/supabase/auth.dart';
+import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository_adapter.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
@@ -67,8 +70,15 @@ class MainApp extends StatelessWidget {
               settings: settings,
             );
           case '/dashboard':
+            final userId = getCurrentUser()!.id;
             return SlideRightToLeftPageRoute(
-              builder: (_) => const DashboardPage(),
+              builder: (_) => ChangeNotifierProvider(
+                create: (_) => CookieCollection(
+                  repository: CookieRepositoryAdapter(),
+                  userId: userId,
+                )..init(),
+                child: const DashboardPage(),
+              ),
               settings: settings,
             );
           default:

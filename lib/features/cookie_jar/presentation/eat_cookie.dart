@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
-import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 
 Future<Cookie?> _eatCookie(BuildContext context) async {
   final user = getCurrentUser();
@@ -22,16 +22,8 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
     return null;
   }
 
-  // TODO: cache a bunch of cookies in frontend and display from there (also make mechanism to not show same cookie multiple times)
   try {
-    return CookieRepositoryAdapter().getRandomCookieForUser(user.id);
-  } on AuthException catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      ErrorSnackbar(
-        message:
-            'We could not fetch your cookies because you are not authenticated.\n${e.message}',
-      ).build(),
-    );
+    return await context.read<CookieCollection>().next();
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       ErrorSnackbar(
@@ -117,6 +109,8 @@ class EatCookieButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.watch<CookieCollection>();
+
     return AdaptiveGlassButton.async(
       buttonText: 'Eat a Cookie',
       showSpinner: false,

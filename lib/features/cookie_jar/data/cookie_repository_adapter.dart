@@ -34,16 +34,18 @@ class CookieRepositoryAdapter implements CookieRepository {
   @override
   Future<List<Cookie>> fetchCookiesFromBeforeDate({
     required String userId,
-    required DateTime before,
+    required DateTime? before,
     int limit = 20,
   }) async {
     var query = _client
         .from(_table)
         .select('id, content, created_at')
-        .eq('user_id', userId)
-        .lt('created_at', before.toIso8601String())
-        .order('created_at')
-        .limit(limit);
+        .eq('user_id', userId);
+    if (before != null) {
+      query.lt('created_at', before.toIso8601String());
+    }
+
+    query.order('created_at').limit(limit);
 
     final rows = await query;
     return rows.map(Cookie.fromMap).toList();

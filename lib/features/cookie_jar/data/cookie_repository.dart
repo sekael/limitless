@@ -7,7 +7,7 @@ abstract class CookieRepository {
 
   Future<List<Cookie>> fetchCookiesFromBeforeDate({
     required String userId,
-    required DateTime before,
+    required DateTime? before,
     int limit = 20,
   });
 }
