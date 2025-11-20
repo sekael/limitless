@@ -1,4 +1,4 @@
-import 'package:limitless_flutter/features/quotes/data/repository.dart';
+import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

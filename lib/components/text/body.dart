@@ -19,7 +19,7 @@ class CenterAlignedBodyText extends StatelessWidget {
       textAlign: TextAlign.center,
       style:
           styleOverride ??
-          Theme.of(context).textTheme.bodyMedium?.copyWith(
+          Theme.of(context).textTheme.bodyLarge?.copyWith(
             color:
                 colorOverride ?? Theme.of(context).colorScheme.onSurfaceVariant,
           ),
