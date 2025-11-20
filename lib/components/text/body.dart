@@ -14,15 +14,19 @@ class CenterAlignedBodyText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      bodyText,
-      textAlign: TextAlign.center,
-      style:
-          styleOverride ??
-          Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color:
-                colorOverride ?? Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Text(
+        bodyText,
+        textAlign: TextAlign.center,
+        style:
+            styleOverride ??
+            Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color:
+                  colorOverride ??
+                  Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+      ),
     );
   }
 }

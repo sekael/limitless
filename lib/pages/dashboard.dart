@@ -74,18 +74,37 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     const TitleText(titleText: 'Welcome to Limitless!'),
                     const SizedBox(height: 8),
+                    const CenterAlignedBodyText(
+                      bodyText: 'This is your personal',
+                    ),
+                    const SizedBox(height: 16),
                     const TextIcon(
                       icon: '🍯',
                       semanticLabel: 'Honey Jar',
                       fontSize: 32,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
+                    CenterAlignedBodyText(
+                      bodyText: 'Cookie Jar',
+                      styleOverride: Theme.of(context).textTheme.titleMedium!
+                          .copyWith(
+                            fontStyle: FontStyle.italic,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
                     const CenterAlignedBodyText(
-                      bodyText: 'This is your personal cookie jar!',
+                      bodyText:
+                          'where you can keep the sweet memories of accomplishments you have made!',
                     ),
                     const CenterAlignedBodyText(
                       bodyText:
-                          'Eat a cookie if you are craving one or bake a new one whenever you feel inspired.',
+                          'Eat a cookie if you are craving one or need a little pick-me-up.',
+                    ),
+                    const CenterAlignedBodyText(
+                      bodyText: 'Bake a new one whenever you feel inspired.',
                     ),
                     // Spacer between text and buttons
                     const SizedBox(height: 12),
