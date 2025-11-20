@@ -12,7 +12,6 @@ import 'package:limitless_flutter/pages/login.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
 import 'package:limitless_flutter/config/theme/theme_provider.dart';
 import 'package:limitless_flutter/core/supabase/bootstrap.dart';
-import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 import 'config/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -35,17 +34,7 @@ void main() async {
 }
 
 class MainApp extends StatelessWidget {
-  MainApp({super.key});
-
-  final logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 1,
-      errorMethodCount: 3,
-      colors: true,
-      lineLength: 120,
-      printEmojis: false,
-    ),
-  );
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
