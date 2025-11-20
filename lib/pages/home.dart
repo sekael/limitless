@@ -55,12 +55,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return;
       }
 
-      logger.i('Successfully retrieved ${items.length} items from repository');
+      logger.i('Successfully retrieved quotes from repository');
 
       final r = Random.secure();
       final idx = r.nextInt(items.length);
       final randomQuote = items[idx];
-      logger.i('Successfully picked random quote');
 
       setState(() {
         _currentQuote = randomQuote;
