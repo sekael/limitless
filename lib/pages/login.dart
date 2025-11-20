@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
-import 'package:limitless_flutter/components/buttons/async_adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/title.dart';
-import 'package:limitless_flutter/supabase/auth.dart';
+import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
@@ -117,9 +116,10 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
-                      child: AdaptiveAsyncButton(
-                        onPressedAsync: _sendLoginCode,
+                      child: AdaptiveGlassButton.async(
+                        onPressed: _sendLoginCode,
                         buttonText: 'Send Login Code',
+                        loadingText: 'Sending Code ...',
                       ),
                     ),
                   ],

@@ -69,13 +69,21 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
           : widget.lightBackgroundImage;
 
       // Warm both images
-      await precacheImage(AssetImage(widget.lightBackgroundImage), context);
-      await precacheImage(AssetImage(widget.darkBackgroundImage), context);
-      if (mounted) {
-        setState(() {
-          _initialized = true;
-        });
-      }
+      final futures = [
+        precacheImage(AssetImage(widget.lightBackgroundImage), context),
+        precacheImage(AssetImage(widget.darkBackgroundImage), context),
+      ];
+
+      Future.wait(futures).then(
+        (_) => {
+          if (mounted)
+            {
+              setState(() {
+                _initialized = true;
+              }),
+            },
+        },
+      );
     });
   }
 
@@ -109,6 +117,8 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
     setState(() {});
 
     await _controller.animateTo(0.5, curve: Curves.easeOut);
+
+    if (!mounted) return;
     await precacheImage(AssetImage(desired), context);
 
     // Reveal second half
