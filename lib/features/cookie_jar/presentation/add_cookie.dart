@@ -4,8 +4,10 @@ import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
-import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+// TODO: allow users to set cookies to public
+// TODO: implement display of public cookies in dashboard (feed)
 
 class _AddCookieView extends StatefulWidget {
   const _AddCookieView({required this.rootContext});
@@ -77,6 +79,7 @@ class _AddCookieViewState extends State<_AddCookieView> {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const TextIcon(
           icon: '👩🏼‍🍳',
@@ -141,13 +144,79 @@ class _AddCookieViewState extends State<_AddCookieView> {
   }
 }
 
+class AddCookiePage extends StatelessWidget {
+  const AddCookiePage({super.key, required this.rootContext});
+
+  final BuildContext rootContext;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Bake a Cookie'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                16,
+                20,
+                MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: _AddCookieView(rootContext: rootContext),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> showAdaptiveAddCookiePage(
+  BuildContext context,
+  Widget content,
+) async {
+  final size = MediaQuery.sizeOf(context);
+  final isWide = size.width >= 720;
+
+  if (isWide) {
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 720, maxWidth: 800),
+          child: Padding(padding: const EdgeInsets.all(24), child: content),
+        ),
+      ),
+    );
+  } else {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (pageContext) {
+          return AddCookiePage(rootContext: context);
+        },
+      ),
+    );
+  }
+}
+
 class AddCookieButton extends StatelessWidget {
   const AddCookieButton({super.key});
   @override
   Widget build(BuildContext context) {
     return AdaptiveGlassButton.sync(
       buttonText: 'Bake a Cookie',
-      onPressed: () => showAdaptiveCookieReveal(
+      onPressed: () => showAdaptiveAddCookiePage(
         context,
         _AddCookieView(rootContext: context),
       ),

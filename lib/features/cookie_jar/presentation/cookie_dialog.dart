@@ -17,7 +17,11 @@ Future<void> showAdaptiveCookieReveal(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      constraints: BoxConstraints(minWidth: size.width, maxWidth: size.width),
+      constraints: BoxConstraints(
+        minWidth: size.width,
+        maxWidth: size.width,
+        minHeight: size.height / 2,
+      ),
       builder: (_) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
