@@ -67,11 +67,13 @@ class _DashboardPageState extends State<DashboardPage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: FractionalOffset(0.5, 0.25),
+              child: SingleChildScrollView(
+                // Give some breathing room at bottom becaue of ThemeToggle
+                padding: const EdgeInsets.only(bottom: 80),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const SizedBox(height: 24),
                     const TitleText(titleText: 'Welcome to Limitless!'),
                     const SizedBox(height: 8),
                     const CenterAlignedBodyText(
