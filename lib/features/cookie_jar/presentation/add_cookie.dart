@@ -6,7 +6,7 @@ import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// TODO: allow users to set cookies to public
+// TODO: Make users set a username to be used for display of public cookies
 // TODO: implement display of public cookies in dashboard (feed)
 
 class _AddCookieView extends StatefulWidget {
@@ -22,6 +22,7 @@ class _AddCookieViewState extends State<_AddCookieView> {
   final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
   bool _submitting = false;
+  bool _isPublic = false;
 
   @override
   void dispose() {
@@ -54,6 +55,7 @@ class _AddCookieViewState extends State<_AddCookieView> {
       await client.from('accomplishments').insert({
         'user_id': user.id,
         'content': text,
+        'public': _isPublic,
       });
 
       if (Navigator.of(context).mounted) Navigator.of(context).pop();
@@ -113,7 +115,7 @@ class _AddCookieViewState extends State<_AddCookieView> {
             textInputAction: TextInputAction.done,
             decoration: const InputDecoration(
               labelText: 'Your accomplishment',
-              hintText: 'Finished my first 5K!',
+              hintText: 'Helped a friend with some really helpful advice!',
               border: OutlineInputBorder(),
             ),
             validator: (v) {
@@ -124,6 +126,29 @@ class _AddCookieViewState extends State<_AddCookieView> {
             },
             onFieldSubmitted: (_) => _submit(),
           ),
+        ),
+        Row(
+          children: [
+            Tooltip(
+              message:
+                  'By sharing this accomplishment with others it becomes public and visible for other users on Limitless',
+              waitDuration: Duration(milliseconds: 750),
+              child: Checkbox(
+                value: _isPublic,
+                onChanged: (value) {
+                  setState(() {
+                    _isPublic = value ?? false;
+                  });
+                },
+              ),
+            ),
+            Text(
+              'Share this accomplishment with others',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inverseSurface,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         Row(
