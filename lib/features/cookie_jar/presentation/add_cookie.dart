@@ -4,6 +4,8 @@ import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // TODO: Make users set a username to be used for display of public cookies
@@ -37,7 +39,6 @@ class _AddCookieViewState extends State<_AddCookieView> {
 
     final messenger = ScaffoldMessenger.of(widget.rootContext);
 
-    final client = getSupabaseClient();
     final user = getCurrentUser();
     if (user == null) {
       messenger.showSnackBar(
@@ -50,14 +51,12 @@ class _AddCookieViewState extends State<_AddCookieView> {
 
     setState(() => _submitting = true);
     final text = _controller.text.trim();
-
     try {
-      await client.from('accomplishments').insert({
-        'user_id': user.id,
-        'content': text,
-        'public': _isPublic,
-      });
-
+      await context.read<CookieCollection>().insertNewCookieForUser(
+        user.id,
+        text,
+        _isPublic,
+      );
       if (Navigator.of(context).mounted) Navigator.of(context).pop();
       if (context.mounted) {
         messenger.showSnackBar(const SnackBar(content: Text('Cookie added!')));
@@ -204,12 +203,15 @@ class AddCookiePage extends StatelessWidget {
   }
 }
 
-Future<void> showAdaptiveAddCookiePage(
-  BuildContext context,
-  Widget content,
-) async {
+Future<void> showAdaptiveAddCookiePage(BuildContext context) async {
+  final collection = context.read<CookieCollection>();
   final size = MediaQuery.sizeOf(context);
   final isWide = size.width >= 720;
+
+  Widget content = ChangeNotifierProvider.value(
+    value: collection,
+    child: _AddCookieView(rootContext: context),
+  );
 
   if (isWide) {
     await showDialog(
@@ -228,7 +230,10 @@ Future<void> showAdaptiveAddCookiePage(
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (pageContext) {
-          return AddCookiePage(rootContext: context);
+          return ChangeNotifierProvider.value(
+            value: collection,
+            child: AddCookiePage(rootContext: context),
+          );
         },
       ),
     );
@@ -239,12 +244,12 @@ class AddCookieButton extends StatelessWidget {
   const AddCookieButton({super.key});
   @override
   Widget build(BuildContext context) {
+    // Uncomment this to enforce a rebuild of the button if the collection changes
+    // final _ = context.watch<CookieCollection>();
+
     return AdaptiveGlassButton.sync(
       buttonText: 'Bake a Cookie',
-      onPressed: () => showAdaptiveAddCookiePage(
-        context,
-        _AddCookieView(rootContext: context),
-      ),
+      onPressed: () => showAdaptiveAddCookiePage(context),
       leadingIcon: const TextIcon(icon: '👩🏼‍🍳', semanticLabel: 'Baker'),
     );
   }

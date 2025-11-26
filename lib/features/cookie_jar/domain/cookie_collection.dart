@@ -65,6 +65,14 @@ class CookieCollection extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> insertNewCookieForUser(
+    String userId,
+    String content,
+    bool isPublic,
+  ) async {
+    repository.insertNewCookieForUser(userId, content, isPublic);
+  }
+
   // Create a simple, deterministic seed from the userId
   static int _deriveSeed(String userId) {
     int h = 0;
