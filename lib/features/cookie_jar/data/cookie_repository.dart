@@ -10,4 +10,10 @@ abstract class CookieRepository {
     required DateTime? before,
     int limit = 20,
   });
+
+  Future<void> insertNewCookieForUser(
+    String userId,
+    String content,
+    bool isPublic,
+  );
 }

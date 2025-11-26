@@ -39,7 +39,7 @@ class CookieRepositoryAdapter implements CookieRepository {
   }) async {
     var query = _client
         .from(_table)
-        .select('id, content, created_at')
+        .select('id, content, created_at, is_public')
         .eq('user_id', userId);
     if (before != null) {
       query.lt('created_at', before.toIso8601String());
@@ -49,5 +49,18 @@ class CookieRepositoryAdapter implements CookieRepository {
 
     final rows = await query;
     return rows.map(Cookie.fromMap).toList();
+  }
+
+  @override
+  Future<void> insertNewCookieForUser(
+    String userId,
+    String content,
+    bool isPublic,
+  ) async {
+    await _client.from('accomplishments').insert({
+      'user_id': userId,
+      'content': content,
+      'is_public': isPublic,
+    });
   }
 }
