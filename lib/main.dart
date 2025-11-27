@@ -6,12 +6,15 @@ import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_ada
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository_adapter.dart';
+import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
+import 'package:limitless_flutter/pages/dashboard_gate.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
 import 'package:limitless_flutter/config/theme/theme_provider.dart';
 import 'package:limitless_flutter/core/supabase/bootstrap.dart';
+import 'package:limitless_flutter/pages/registration.dart';
 import 'package:provider/provider.dart';
 import 'config/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -70,15 +73,35 @@ class MainApp extends StatelessWidget {
               settings: settings,
             );
           case '/dashboard':
-            final userId = getCurrentUser()!.id;
             return SlideRightToLeftPageRoute(
-              builder: (_) => ChangeNotifierProvider(
-                create: (_) => CookieCollection(
-                  repository: CookieRepositoryAdapter(),
-                  userId: userId,
-                )..init(),
-                child: const DashboardPage(),
+              builder: (context) => DashboardGate(
+                dashboardBuilder: (_) {
+                  final userId = getCurrentUser()!.id;
+                  return ChangeNotifierProvider(
+                    create: (_) => CookieCollection(
+                      repository: CookieRepositoryAdapter(),
+                      userId: userId,
+                    )..init(),
+                    child: const DashboardPage(),
+                  );
+                },
               ),
+              settings: settings,
+            );
+          case '/registration':
+            final args = settings.arguments as UserProfileData?;
+            final authenticatedUser = getCurrentUser();
+            if (authenticatedUser == null) {
+              return SlideRightToLeftPageRoute(
+                builder: (_) => const HomePage(),
+                settings: settings,
+              );
+            }
+            final registeringUser =
+                args ?? UserProfileData(id: authenticatedUser.id);
+            return SlideRightToLeftPageRoute(
+              builder: (_) =>
+                  RegistrationPage(registeringUser: registeringUser),
               settings: settings,
             );
           default:
