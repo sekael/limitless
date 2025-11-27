@@ -20,6 +20,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   bool _signingOut = false;
 
+  // TODO: refactor this to be globally available
   Future<void> _handleSignOut() async {
     if (_signingOut) return;
     setState(() => _signingOut = true);
