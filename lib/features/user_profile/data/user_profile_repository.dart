@@ -1,7 +1,9 @@
-import 'package:limitless_flutter/features/user_profile/domain/user.dart';
+import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
 
 abstract class UserProfileRepository {
-  Future<User?> getMyUserById();
+  Future<UserProfileData?> getUserById(String userId);
 
-  Future<void> updateMyUser(User updatedUser);
+  Future<void> updateMyUser(UserProfileData updatedUser);
+
+  Future<void> upsertMyUser(UserProfileData updatedUser);
 }
