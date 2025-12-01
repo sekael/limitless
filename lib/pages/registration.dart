@@ -119,7 +119,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(
-                  onPressed: _submitting ? null : () => _handleSignOut,
+                  onPressed: _submitting ? null : _handleSignOut,
                   child: const Text(
                     'Cancel Registration',
                   ), // TODO: delete user data
