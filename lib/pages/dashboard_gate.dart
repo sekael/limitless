@@ -5,7 +5,6 @@ import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
 import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
-import 'package:limitless_flutter/pages/registration.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardGate extends StatefulWidget {
