@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/background_image.dart';
-import 'package:limitless_flutter/components/no_animation_page_transition.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
