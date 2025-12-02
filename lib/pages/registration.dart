@@ -1,6 +1,9 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
+import 'package:limitless_flutter/components/forms/date_picker.dart';
+import 'package:limitless_flutter/components/text/form_selection.dart';
 import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
@@ -23,7 +26,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   late final TextEditingController _firstNameCtrl;
   late final TextEditingController _lastNameCtrl;
   DateTime? _dob;
-  String? _country;
+  String? _countryCode;
+  String? _countryName;
   bool _submitting = false;
 
   @override
@@ -34,7 +38,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _firstNameCtrl = TextEditingController(text: u.firstName ?? '');
     _lastNameCtrl = TextEditingController(text: u.lastName ?? '');
     _dob = u.dateOfBirth;
-    _country = u.country;
+    _countryCode = u.country;
   }
 
   @override
@@ -53,7 +57,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     widget.registeringUser.firstName = _firstNameCtrl.text.trim();
     widget.registeringUser.lastName = _lastNameCtrl.text.trim();
     widget.registeringUser.dateOfBirth = _dob;
-    widget.registeringUser.country = _country;
+    widget.registeringUser.country = _countryCode;
 
     try {
       await userRepository.upsertMyUser(widget.registeringUser);
@@ -91,46 +95,131 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
+  Widget _countrySelection() {
+    final textColor = Theme.of(context).colorScheme.inverseSurface;
+
+    return FormField(
+      validator: (value) =>
+          (_countryCode == null) ? 'Country of residence is required' : null,
+      builder: (field) {
+        return InkWell(
+          onTap: _submitting
+              ? null
+              : () {
+                  showCountryPicker(
+                    context: context,
+                    countryListTheme: CountryListThemeData(
+                      textStyle: TextStyle(color: textColor),
+                      borderRadius: BorderRadius.circular(8.0),
+                      flagSize: 12.0,
+                      searchTextStyle: TextStyle(color: textColor),
+                    ),
+                    onSelect: (Country country) {
+                      setState(() {
+                        _countryCode = country.countryCode;
+                        _countryName = country.name;
+                      });
+                      field.didChange(_countryCode);
+                    },
+                  );
+                },
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'Country of Residence',
+              border: OutlineInputBorder(),
+              errorText: field.errorText,
+            ),
+            child: FormSelectionText(
+              inputText: _countryName,
+              hintText: 'Select your country of residence',
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Complete User Profile')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _firstNameCtrl,
-              decoration: const InputDecoration(labelText: 'First Name'),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'First name is required'
-                  : null,
-            ),
-            TextFormField(
-              controller: _lastNameCtrl,
-              decoration: const InputDecoration(labelText: 'Last Name'),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Last name is required'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: _submitting ? null : _handleSignOut,
-                  child: const Text(
-                    'Cancel Registration',
-                  ), // TODO: delete user data
+      backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
+      appBar: AppBar(
+        title: const Text('Complete User Profile'),
+        backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(32),
+        scrolledUnderElevation: 0,
+      ),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 560),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    TextFormField(
+                      controller: _firstNameCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'First Name',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'First name is required'
+                          : null,
+                      style: t.bodyMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.inverseSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _lastNameCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Last Name',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Last name is required'
+                          : null,
+                      style: t.bodyMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.inverseSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DatePicker(
+                      currentDate: _dob,
+                      emptyValidationText: 'Date of birth is required',
+                      incompleteValidationText:
+                          'Please complete all date fields',
+                      onDateChanged: (date) {
+                        _dob = date;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _countrySelection(),
+                    const SizedBox(height: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AdaptiveGlassButton.async(
+                          buttonText: 'Complete Registration',
+                          onPressed: _submit,
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: _submitting ? null : _handleSignOut,
+                          child: const Text('Cancel Registration'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                AdaptiveGlassButton.async(
-                  buttonText: 'Complete Registration',
-                  onPressed: _submit,
-                ),
-              ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
