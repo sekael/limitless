@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/forms/date_picker.dart';
+import 'package:limitless_flutter/components/forms/name_form_field.dart';
+import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/form_selection.dart';
 import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
@@ -23,6 +25,7 @@ class RegistrationPage extends StatefulWidget {
 class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
   late final UserProfileRepository userRepository;
+  late final TextEditingController _usernameCtrl;
   late final TextEditingController _firstNameCtrl;
   late final TextEditingController _lastNameCtrl;
   DateTime? _dob;
@@ -35,14 +38,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.initState();
     userRepository = UserProfileRepositoryAdapter();
     final u = widget.registeringUser;
+
+    _usernameCtrl = TextEditingController(text: u.username ?? '');
     _firstNameCtrl = TextEditingController(text: u.firstName ?? '');
     _lastNameCtrl = TextEditingController(text: u.lastName ?? '');
     _dob = u.dateOfBirth;
     _countryCode = u.country;
+
+    if (_countryCode != null) {
+      final countryName = Country.tryParse(_countryCode!);
+      _countryName = countryName?.name;
+    }
   }
 
   @override
   void dispose() {
+    _usernameCtrl.dispose();
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
     super.dispose();
@@ -54,6 +65,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     setState(() => _submitting = true);
 
+    widget.registeringUser.username = _usernameCtrl.text.trim();
     widget.registeringUser.firstName = _firstNameCtrl.text.trim();
     widget.registeringUser.lastName = _lastNameCtrl.text.trim();
     widget.registeringUser.dateOfBirth = _dob;
@@ -101,6 +113,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return FormField(
       validator: (value) =>
           (_countryCode == null) ? 'Country of residence is required' : null,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       builder: (field) {
         return InkWell(
           onTap: _submitting
@@ -141,8 +154,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
       appBar: AppBar(
@@ -161,32 +172,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 child: ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    TextFormField(
+                    CenterAlignedBodyText(
+                      bodyText:
+                          'We would like to get to know you a little bit!\nPlease fill out the following fields.',
+                    ),
+                    const SizedBox(height: 20),
+                    NameFormField(
                       controller: _firstNameCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'First Name',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'First name is required'
-                          : null,
-                      style: t.bodyMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.inverseSurface,
-                      ),
+                      labelText: 'First Name',
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+                    NameFormField(
                       controller: _lastNameCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Last Name',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Last name is required'
-                          : null,
-                      style: t.bodyMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.inverseSurface,
-                      ),
+                      labelText: 'Last Name',
+                    ),
+                    const SizedBox(height: 16),
+                    NameFormField(
+                      controller: _usernameCtrl,
+                      labelText: 'Username',
                     ),
                     const SizedBox(height: 16),
                     DatePicker(
