@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:limitless_flutter/core/logging/app_logger.dart';
@@ -115,10 +116,28 @@ class _DatePickerState extends State<DatePicker> {
   Widget build(BuildContext context) {
     return FormField<DateTime>(
       validator: (_) => _validateDateFields(),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       builder: (field) {
-        final t = Theme.of(context).textTheme;
-        final inputTextColor = Theme.of(context).colorScheme.inverseSurface;
+        final theme = Theme.of(context);
+        final t = theme.textTheme;
+        final inputTextColor = theme.colorScheme.inverseSurface;
         final errorText = field.errorText;
+
+        final Color enabledborderColor = field.hasError
+            ? theme.colorScheme.error
+            : theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
+                  theme.colorScheme.outline;
+        final Color focusedBorderColor = field.hasError
+            ? theme.colorScheme.error
+            : theme.colorScheme.primary;
+        OutlineInputBorder _border(Color color) =>
+            OutlineInputBorder(borderSide: BorderSide(color: color));
+        InputDecoration _datePickerDecoration(String hint) => InputDecoration(
+          hintText: hint,
+          border: _border(enabledborderColor),
+          enabledBorder: _border(enabledborderColor),
+          focusedBorder: _border(focusedBorderColor),
+        );
 
         void onAnyFieldChanged(String _) {
           final date = _tryBuildingDateFromFields();
@@ -143,10 +162,7 @@ class _DatePickerState extends State<DatePicker> {
                   child: TextFormField(
                     controller: _dayController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'DD',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: _datePickerDecoration('DD'),
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     textInputAction: TextInputAction.next,
                     maxLength: 2,
@@ -166,10 +182,7 @@ class _DatePickerState extends State<DatePicker> {
                   child: TextFormField(
                     controller: _monthController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'MM',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: _datePickerDecoration('MM'),
                     textInputAction: TextInputAction.next,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     maxLength: 2,
@@ -190,10 +203,7 @@ class _DatePickerState extends State<DatePicker> {
                   child: TextFormField(
                     controller: _yearController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'YYYY',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: _datePickerDecoration('YYYY'),
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     textInputAction: TextInputAction.done,
                     maxLength: 4,

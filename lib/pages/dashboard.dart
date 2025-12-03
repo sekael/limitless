@@ -8,6 +8,8 @@ import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
+import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
+import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -19,6 +21,8 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   bool _signingOut = false;
+  final UserProfileRepository _userProfileRepository =
+      UserProfileRepositoryAdapter();
 
   // TODO: refactor this to be globally available -> UserService
   Future<void> _handleSignOut() async {

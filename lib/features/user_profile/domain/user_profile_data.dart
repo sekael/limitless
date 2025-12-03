@@ -1,5 +1,6 @@
 class UserProfileData {
   final String id;
+  String? username;
   String? firstName;
   String? lastName;
   DateTime? dateOfBirth;
@@ -7,6 +8,7 @@ class UserProfileData {
 
   UserProfileData({
     required this.id,
+    this.username,
     this.firstName,
     this.lastName,
     this.dateOfBirth,
@@ -15,6 +17,7 @@ class UserProfileData {
 
   factory UserProfileData.fromMap(Map<String, dynamic> m) => UserProfileData(
     id: m['id'] as String,
+    username: m['username'],
     firstName: m['first_name'],
     lastName: m['last_name'],
     dateOfBirth: DateTime.parse(m['date_of_birth'] as String),
@@ -24,6 +27,7 @@ class UserProfileData {
   Map<String, dynamic> toMap() {
     return {
       "id": id,
+      "username": username,
       "first_name": firstName,
       "last_name": lastName,
       "date_of_birth": dateOfBirth?.toIso8601String(),
@@ -32,8 +36,10 @@ class UserProfileData {
   }
 
   bool isComplete() {
-    return (firstName != null && firstName!.trim().isNotEmpty) &&
+    return (username != null && username!.trim().isNotEmpty) &&
+        (firstName != null && firstName!.trim().isNotEmpty) &&
         (lastName != null && lastName!.trim().isNotEmpty) &&
+        (dateOfBirth != null) &&
         (country != null && country!.trim().isNotEmpty);
   }
 }
