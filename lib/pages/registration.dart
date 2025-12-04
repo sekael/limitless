@@ -1,22 +1,18 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/forms/date_picker.dart';
 import 'package:limitless_flutter/components/forms/name_form_field.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/form_selection.dart';
-import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
-import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
-import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
 import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationPage extends StatefulWidget {
-  const RegistrationPage({super.key, required this.registeringUser});
-
-  final UserProfileData registeringUser;
+  const RegistrationPage({super.key});
 
   @override
   State<StatefulWidget> createState() => _RegistrationPageState();
@@ -24,31 +20,32 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
-  late final UserProfileRepository userRepository;
+
   late final TextEditingController _usernameCtrl;
   late final TextEditingController _firstNameCtrl;
   late final TextEditingController _lastNameCtrl;
+
   DateTime? _dob;
   String? _countryCode;
   String? _countryName;
   bool _submitting = false;
 
+  late final UserService _userService;
+  bool _loadedProfileData = false;
+
   @override
   void initState() {
     super.initState();
-    userRepository = UserProfileRepositoryAdapter();
-    final u = widget.registeringUser;
 
-    _usernameCtrl = TextEditingController(text: u.username ?? '');
-    _firstNameCtrl = TextEditingController(text: u.firstName ?? '');
-    _lastNameCtrl = TextEditingController(text: u.lastName ?? '');
-    _dob = u.dateOfBirth;
-    _countryCode = u.country;
+    _userService = context.read<UserService>();
 
-    if (_countryCode != null) {
-      final countryName = Country.tryParse(_countryCode!);
-      _countryName = countryName?.name;
-    }
+    _usernameCtrl = TextEditingController();
+    _firstNameCtrl = TextEditingController();
+    _lastNameCtrl = TextEditingController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProfileDataIntoForm();
+    });
   }
 
   @override
@@ -59,51 +56,59 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.dispose();
   }
 
+  Future<void> _loadProfileDataIntoForm() async {
+    if (_loadedProfileData) return;
+    await _userService.refreshProfile();
+    _loadedProfileData = true;
+
+    final u = _userService.profileData;
+    if (!mounted || u == null) {
+      return;
+    }
+
+    setState(() {
+      _usernameCtrl.text = u.username ?? '';
+      _firstNameCtrl.text = u.firstName ?? '';
+      _lastNameCtrl.text = u.lastName ?? '';
+      _dob = u.dateOfBirth;
+      _countryCode = u.country;
+
+      if (_countryCode != null) {
+        final country = Country.tryParse(_countryCode!);
+        _countryName = country?.name;
+      }
+    });
+  }
+
   Future<void> _submit() async {
     if (_submitting) return;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _submitting = true);
 
-    widget.registeringUser.username = _usernameCtrl.text.trim();
-    widget.registeringUser.firstName = _firstNameCtrl.text.trim();
-    widget.registeringUser.lastName = _lastNameCtrl.text.trim();
-    widget.registeringUser.dateOfBirth = _dob;
-    widget.registeringUser.country = _countryCode;
+    final updatedUser = UserProfileData(
+      id: getCurrentUser().id,
+      username: _usernameCtrl.text.trim(),
+      firstName: _firstNameCtrl.text.trim(),
+      lastName: _lastNameCtrl.text.trim(),
+      dateOfBirth: _dob,
+      country: _countryCode,
+    );
 
     try {
-      await userRepository.upsertMyUser(widget.registeringUser);
+      await _userService.saveProfileData(updatedUser, upsert: true);
 
       if (!mounted) return;
       // Go back through the gate – which will now show Dashboard
       Navigator.of(context).pushReplacementNamed('/dashboard');
-    } finally {
-      if (mounted) setState(() => _submitting = false);
-    }
-  }
-
-  // TODO: once available, use global function
-  Future<void> _handleSignOut() async {
-    try {
-      logger.i('Registration: user chose to cancel and sign out');
-      await signOut();
-      if (!mounted) {
-        logger.w('RegistrationPage not mounted after signOut');
-        return;
-      }
-      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-    } on AuthException catch (e) {
-      if (!mounted) return;
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         ErrorSnackbar(
-          message: 'Error trying to log you out: ${e.message}',
+          message: 'Failed to save profile data because of an unexpected error',
         ).build(),
       );
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        ErrorSnackbar(message: 'Unexpected error during log out').build(),
-      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
@@ -154,6 +159,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userService = context.watch<UserService>();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
       appBar: AppBar(
@@ -213,7 +220,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         ),
                         const SizedBox(height: 8),
                         TextButton(
-                          onPressed: _submitting ? null : _handleSignOut,
+                          onPressed: () async {
+                            _submitting
+                                ? null
+                                : userService.handleSignOut(context);
+                          },
                           child: const Text('Cancel Registration'),
                         ),
                       ],

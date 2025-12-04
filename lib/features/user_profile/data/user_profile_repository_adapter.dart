@@ -27,11 +27,7 @@ class UserProfileRepositoryAdapter implements UserProfileRepository {
   /// Throws [PostgresException] if there is an issue updating the user in the database.
   @override
   Future<void> updateMyUser(UserProfileData updatedUser) async {
-    User? myUser = getCurrentUser();
-    if (myUser == null) {
-      logger.e('Current user is not correctly authenticated');
-      throw Exception('Current user is not correctly authenticated');
-    }
+    User myUser = getCurrentUser();
 
     final userId = myUser.id;
     if (userId != updatedUser.id) {
@@ -46,11 +42,7 @@ class UserProfileRepositoryAdapter implements UserProfileRepository {
 
   @override
   Future<void> upsertMyUser(UserProfileData updatedUser) async {
-    User? myUser = getCurrentUser();
-    if (myUser == null) {
-      logger.e('Current user is not correctly authenticated');
-      throw Exception('Current user is not correctly authenticated');
-    }
+    User myUser = getCurrentUser();
 
     final userId = myUser.id;
     if (userId != updatedUser.id) {

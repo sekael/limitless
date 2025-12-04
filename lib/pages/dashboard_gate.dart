@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/text/body.dart';
-import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
@@ -20,22 +19,18 @@ class _DashboardGateState extends State<DashboardGate> {
   final UserProfileRepository _userProfileRepository =
       UserProfileRepositoryAdapter();
   late final Future<UserProfileData?> _userProfileFuture;
-  late final User? _authenticatedUser;
+  late final User _authenticatedUser;
   bool _redirecting = false;
 
   @override
   void initState() {
     super.initState();
     _authenticatedUser = getCurrentUser();
-    if (_authenticatedUser == null) {
-      logger.e('Current user is not authenticated');
-      throw Exception('Current user is not authenticated');
-    }
     _userProfileFuture = _loadUserProfile();
   }
 
   Future<UserProfileData?> _loadUserProfile() async {
-    return await _userProfileRepository.getUserById(_authenticatedUser!.id);
+    return await _userProfileRepository.getUserById(_authenticatedUser.id);
   }
 
   @override
@@ -66,7 +61,7 @@ class _DashboardGateState extends State<DashboardGate> {
           if (!_redirecting) {
             _redirecting = true;
             final registeringUser =
-                userProfileData ?? UserProfileData(id: _authenticatedUser!.id);
+                userProfileData ?? UserProfileData(id: _authenticatedUser.id);
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
               Navigator.of(context).pushReplacementNamed(
