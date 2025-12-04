@@ -42,6 +42,40 @@ class _DatePickerState extends State<DatePicker> {
   }
 
   @override
+  void didUpdateWidget(covariant DatePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Only update if the parent passes a different date
+    if (widget.currentDate == oldWidget.currentDate) return;
+
+    _date = widget.currentDate;
+
+    // Defer text updates so they do not coincide with the build of the TextFormFields
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_date != null) {
+        final dayText = _date!.day.toString().padLeft(2, '0');
+        final monthText = _date!.month.toString().padLeft(2, '0');
+        final yearText = _date!.year.toString();
+
+        // Only set if dates are different to avoid unnecessary notifications
+        if (_dayController.text != dayText) {
+          _dayController.text = dayText;
+        }
+        if (_monthController.text != monthText) {
+          _monthController.text = monthText;
+        }
+        if (_yearController.text != yearText) {
+          _yearController.text = yearText;
+        }
+      } else {
+        _dayController.text = '';
+        _monthController.text = '';
+        _yearController.text = '';
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _dayController.dispose();
     _monthController.dispose();
@@ -129,13 +163,13 @@ class _DatePickerState extends State<DatePicker> {
         final Color focusedBorderColor = field.hasError
             ? theme.colorScheme.error
             : theme.colorScheme.primary;
-        OutlineInputBorder _border(Color color) =>
+        OutlineInputBorder border(Color color) =>
             OutlineInputBorder(borderSide: BorderSide(color: color));
-        InputDecoration _datePickerDecoration(String hint) => InputDecoration(
+        InputDecoration datePickerDecoration(String hint) => InputDecoration(
           hintText: hint,
-          border: _border(enabledborderColor),
-          enabledBorder: _border(enabledborderColor),
-          focusedBorder: _border(focusedBorderColor),
+          border: border(enabledborderColor),
+          enabledBorder: border(enabledborderColor),
+          focusedBorder: border(focusedBorderColor),
         );
 
         void onAnyFieldChanged(String _) {
@@ -161,7 +195,7 @@ class _DatePickerState extends State<DatePicker> {
                   child: TextFormField(
                     controller: _dayController,
                     keyboardType: TextInputType.number,
-                    decoration: _datePickerDecoration('DD'),
+                    decoration: datePickerDecoration('DD'),
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     textInputAction: TextInputAction.next,
                     maxLength: 2,
@@ -181,7 +215,7 @@ class _DatePickerState extends State<DatePicker> {
                   child: TextFormField(
                     controller: _monthController,
                     keyboardType: TextInputType.number,
-                    decoration: _datePickerDecoration('MM'),
+                    decoration: datePickerDecoration('MM'),
                     textInputAction: TextInputAction.next,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     maxLength: 2,
@@ -202,7 +236,7 @@ class _DatePickerState extends State<DatePicker> {
                   child: TextFormField(
                     controller: _yearController,
                     keyboardType: TextInputType.number,
-                    decoration: _datePickerDecoration('YYYY'),
+                    decoration: datePickerDecoration('YYYY'),
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     textInputAction: TextInputAction.done,
                     maxLength: 4,

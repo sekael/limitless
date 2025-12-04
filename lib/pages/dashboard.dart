@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
-import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
-import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
-import 'package:limitless_flutter/core/supabase/auth.dart';
-import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
-import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
+import 'package:provider/provider.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -20,37 +17,10 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  bool _signingOut = false;
-  final UserProfileRepository _userProfileRepository =
-      UserProfileRepositoryAdapter();
-
-  // TODO: refactor this to be globally available -> UserService
-  Future<void> _handleSignOut() async {
-    if (_signingOut) return;
-    setState(() => _signingOut = true);
-    try {
-      await signOut();
-      if (!mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-    } on AuthException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        ErrorSnackbar(
-          message: 'Error trying to log you out: ${e.message}',
-        ).build(),
-      );
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        ErrorSnackbar(message: 'Unexpected error during log out').build(),
-      );
-    } finally {
-      if (mounted) setState(() => _signingOut = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final userService = context.watch<UserService>();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
       appBar: AppBar(
@@ -59,9 +29,11 @@ class _DashboardPageState extends State<DashboardPage> {
         scrolledUnderElevation: 0,
         actions: [
           AdaptiveGlassButton.async(
-            buttonText: _signingOut ? 'Signing out ...' : 'Log Out',
+            buttonText: userService.signingOut ? 'Signing out ...' : 'Log Out',
             onPressed: () async {
-              _signingOut ? null : _handleSignOut();
+              userService.signingOut
+                  ? null
+                  : userService.handleSignOut(context);
             },
           ),
         ],

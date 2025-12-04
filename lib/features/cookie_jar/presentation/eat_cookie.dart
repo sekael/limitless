@@ -8,20 +8,10 @@ import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
-import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
 import 'package:provider/provider.dart';
 
 Future<Cookie?> _eatCookie(BuildContext context) async {
-  final user = getCurrentUser();
-
-  if (user == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      ErrorSnackbar(message: 'You must be logged in to add a cookie.').build(),
-    );
-    return null;
-  }
-
   try {
     return await context.read<CookieCollection>().next();
   } catch (e) {

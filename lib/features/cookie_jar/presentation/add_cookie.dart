@@ -3,6 +3,7 @@ import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
+import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:provider/provider.dart';
@@ -39,8 +40,10 @@ class _AddCookieViewState extends State<_AddCookieView> {
 
     final messenger = ScaffoldMessenger.of(widget.rootContext);
 
-    final user = getCurrentUser();
-    if (user == null) {
+    User user;
+    try {
+      user = getCurrentUser();
+    } on UnauthenticatedUserException catch (_) {
       messenger.showSnackBar(
         ErrorSnackbar(
           message: 'You must be logged in to add a cookie.',

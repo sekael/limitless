@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
+import 'package:limitless_flutter/config/theme/theme_provider.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
+import 'package:limitless_flutter/core/supabase/bootstrap.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository_adapter.dart';
-import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
+import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
+import 'package:limitless_flutter/pages/dashboard.dart';
 import 'package:limitless_flutter/pages/dashboard_gate.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
-import 'package:limitless_flutter/pages/dashboard.dart';
-import 'package:limitless_flutter/config/theme/theme_provider.dart';
-import 'package:limitless_flutter/core/supabase/bootstrap.dart';
 import 'package:limitless_flutter/pages/registration.dart';
 import 'package:provider/provider.dart';
-import 'config/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'config/theme/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,11 @@ void main() async {
           create: (_) => QuotesRepositoryAdapter(supabase),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(
+          create: (_) =>
+              UserService(userProfileRepository: UserProfileRepositoryAdapter())
+                ..init(),
+        ),
       ],
       child: MainApp(),
     ),
@@ -77,7 +84,7 @@ class MainApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => DashboardGate(
                 dashboardBuilder: (_) {
-                  final userId = getCurrentUser()!.id;
+                  final userId = getCurrentUser().id;
                   return ChangeNotifierProvider(
                     create: (_) => CookieCollection(
                       repository: CookieRepositoryAdapter(),
@@ -90,19 +97,8 @@ class MainApp extends StatelessWidget {
               settings: settings,
             );
           case '/registration':
-            final args = settings.arguments as UserProfileData?;
-            final authenticatedUser = getCurrentUser();
-            if (authenticatedUser == null) {
-              return SlideRightToLeftPageRoute(
-                builder: (_) => const HomePage(),
-                settings: settings,
-              );
-            }
-            final registeringUser =
-                args ?? UserProfileData(id: authenticatedUser.id);
             return SlideRightToLeftPageRoute(
-              builder: (_) =>
-                  RegistrationPage(registeringUser: registeringUser),
+              builder: (_) => const RegistrationPage(),
               settings: settings,
             );
           default:
