@@ -21,6 +21,14 @@ class UserService extends ChangeNotifier {
   UserProfileData? get profileData => _profileData;
   bool get loadingProfile => _loadingProfile;
   bool get signingOut => _signingOut;
+  bool get isLoggedIn {
+    try {
+      final _ = getCurrentUser();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   // Initialize after app startup
   Future<void> init() async {
@@ -36,7 +44,7 @@ class UserService extends ChangeNotifier {
       logger.e(
         'Attempted refreshing profile for a user that is not correctly logged in: ${e.toString()}',
       );
-      _profileData == null;
+      _profileData = null;
       notifyListeners();
       return;
     }
@@ -46,6 +54,7 @@ class UserService extends ChangeNotifier {
 
     try {
       _profileData = await _userProfileRepository.getUserById(user.id);
+      logger.i('Successfully retrieved profile data for user ${user.id}');
     } catch (error, stacktrace) {
       logger.e(
         'Failed to load user profile for user ${user.id}',
@@ -76,6 +85,7 @@ class UserService extends ChangeNotifier {
       rethrow;
     } finally {
       _profileData = updatedProfile;
+      logger.i('Successfully saved profile data for user ${updatedProfile.id}');
       notifyListeners();
     }
   }
@@ -88,6 +98,7 @@ class UserService extends ChangeNotifier {
     notifyListeners();
 
     final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
 
     try {
       await signOut();
@@ -95,9 +106,7 @@ class UserService extends ChangeNotifier {
       // Clear cached profile data
       _profileData = null;
       notifyListeners();
-
-      if (!context.mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      navigator.pushNamedAndRemoveUntil('/', (route) => false);
     } on AuthException catch (e, st) {
       logger.e('Authentication error when trying to sign out', e, st);
       if (!context.mounted) return;
@@ -116,6 +125,7 @@ class UserService extends ChangeNotifier {
       );
     } finally {
       _signingOut = false;
+      logger.i('Successfully signed-out user');
       notifyListeners();
     }
   }

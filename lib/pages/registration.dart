@@ -31,21 +31,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
   bool _submitting = false;
 
   late final UserService _userService;
-  bool _loadedProfileData = false;
 
   @override
   void initState() {
     super.initState();
 
     _userService = context.read<UserService>();
+    final u =
+        _userService.profileData ?? UserProfileData(id: getCurrentUser().id);
 
-    _usernameCtrl = TextEditingController();
-    _firstNameCtrl = TextEditingController();
-    _lastNameCtrl = TextEditingController();
+    _usernameCtrl = TextEditingController(text: u.username ?? '');
+    _firstNameCtrl = TextEditingController(text: u.firstName ?? '');
+    _lastNameCtrl = TextEditingController(text: u.lastName ?? '');
+    _dob = u.dateOfBirth;
+    _countryCode = u.country;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadProfileDataIntoForm();
-    });
+    if (_countryCode != null) {
+      final country = Country.tryParse(_countryCode!);
+      _countryName = country?.name;
+    }
   }
 
   @override
@@ -54,30 +58,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadProfileDataIntoForm() async {
-    if (_loadedProfileData) return;
-    await _userService.refreshProfile();
-    _loadedProfileData = true;
-
-    final u = _userService.profileData;
-    if (!mounted || u == null) {
-      return;
-    }
-
-    setState(() {
-      _usernameCtrl.text = u.username ?? '';
-      _firstNameCtrl.text = u.firstName ?? '';
-      _lastNameCtrl.text = u.lastName ?? '';
-      _dob = u.dateOfBirth;
-      _countryCode = u.country;
-
-      if (_countryCode != null) {
-        final country = Country.tryParse(_countryCode!);
-        _countryName = country?.name;
-      }
-    });
   }
 
   Future<void> _submit() async {

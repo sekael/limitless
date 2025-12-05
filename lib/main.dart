@@ -3,19 +3,14 @@ import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
 import 'package:limitless_flutter/config/theme/theme_provider.dart';
-import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/core/supabase/bootstrap.dart';
-import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
-import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository_adapter.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
-import 'package:limitless_flutter/pages/dashboard.dart';
 import 'package:limitless_flutter/pages/dashboard_gate.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
-import 'package:limitless_flutter/pages/registration.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -80,25 +75,8 @@ class MainApp extends StatelessWidget {
               settings: settings,
             );
           case '/dashboard':
-            // TODO: wrap dashboard in SlidingTransition
-            return MaterialPageRoute(
-              builder: (context) => DashboardGate(
-                dashboardBuilder: (_) {
-                  final userId = getCurrentUser().id;
-                  return ChangeNotifierProvider(
-                    create: (_) => CookieCollection(
-                      repository: CookieRepositoryAdapter(),
-                      userId: userId,
-                    )..init(),
-                    child: const DashboardPage(),
-                  );
-                },
-              ),
-              settings: settings,
-            );
-          case '/registration':
             return SlideRightToLeftPageRoute(
-              builder: (_) => const RegistrationPage(),
+              builder: (_) => const DashboardGate(),
               settings: settings,
             );
           default:
