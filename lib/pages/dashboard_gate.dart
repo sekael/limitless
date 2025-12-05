@@ -1,84 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:limitless_flutter/components/text/body.dart';
-import 'package:limitless_flutter/core/supabase/auth.dart';
-import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
-import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
-import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:limitless_flutter/app/user/user_service.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
+import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
+import 'package:limitless_flutter/pages/dashboard.dart';
+import 'package:limitless_flutter/pages/registration.dart';
+import 'package:provider/provider.dart';
 
 class DashboardGate extends StatefulWidget {
-  const DashboardGate({super.key, required this.dashboardBuilder});
-
-  final WidgetBuilder dashboardBuilder;
+  const DashboardGate({super.key});
 
   @override
   State<StatefulWidget> createState() => _DashboardGateState();
 }
 
 class _DashboardGateState extends State<DashboardGate> {
-  final UserProfileRepository _userProfileRepository =
-      UserProfileRepositoryAdapter();
-  late final Future<UserProfileData?> _userProfileFuture;
-  late final User _authenticatedUser;
-  bool _redirecting = false;
+  bool _requestedProfile = false;
 
   @override
-  void initState() {
-    super.initState();
-    _authenticatedUser = getCurrentUser();
-    _userProfileFuture = _loadUserProfile();
-  }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-  Future<UserProfileData?> _loadUserProfile() async {
-    return await _userProfileRepository.getUserById(_authenticatedUser.id);
+    if (!_requestedProfile) {
+      _requestedProfile = true;
+      final userService = context.read<UserService>();
+
+      if (userService.isLoggedIn) {
+        userService.refreshProfile();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserProfileData?>(
-      future: _userProfileFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return Scaffold(
-            body: Center(child: CircularProgressIndicator.adaptive()),
-          );
-        }
+    final userService = context.watch<UserService>();
+    final profile = userService.profileData;
 
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: CenterAlignedBodyText(
-                bodyText: 'Sorry, something went wrong loading your profile.',
-              ),
-            ),
-          );
-        }
+    if (userService.loadingProfile || userService.signingOut) {
+      logger.i(
+        'loadingProfile = ${userService.loadingProfile}, signingOut = ${userService.signingOut}',
+      );
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator.adaptive()),
+      );
+    }
 
-        final userProfileData = snapshot.data;
+    if (!userService.isLoggedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      });
+      return const SizedBox.shrink();
+    }
 
-        // Incomplete or missing profile -> redirect to registration
-        if (userProfileData == null || !userProfileData.isComplete()) {
-          if (!_redirecting) {
-            _redirecting = true;
-            final registeringUser =
-                userProfileData ?? UserProfileData(id: _authenticatedUser.id);
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              Navigator.of(context).pushReplacementNamed(
-                '/registration',
-                arguments: registeringUser,
-              );
-            });
-          }
+    if (profile == null || !profile.isComplete()) {
+      return const RegistrationPage();
+    }
 
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator.adaptive()),
-          );
-        }
-
-        // Profile complete -> render the dashboard
-        return widget.dashboardBuilder(context);
-      },
+    return ChangeNotifierProvider(
+      create: (_) => CookieCollection(
+        repository: CookieRepositoryAdapter(),
+        userId: profile.id,
+      )..init(),
+      child: const DashboardPage(),
     );
   }
 }
