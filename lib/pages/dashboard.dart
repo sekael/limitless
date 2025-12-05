@@ -20,6 +20,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final userService = context.watch<UserService>();
+    final userProfile = userService.getLoggedInUserProfile();
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
@@ -51,7 +52,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: 24),
-                    const TitleText(titleText: 'Welcome to Limitless!'),
+                    TitleText(
+                      titleText:
+                          'Welcome to Limitless ${userProfile.firstName}!',
+                    ),
                     const SizedBox(height: 8),
                     const CenterAlignedBodyText(
                       bodyText: 'This is your personal',

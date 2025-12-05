@@ -25,8 +25,11 @@ class _DashboardGateState extends State<DashboardGate> {
       _requestedProfile = true;
       final userService = context.read<UserService>();
 
-      if (userService.isLoggedIn) {
-        userService.refreshProfile();
+      if (userService.isLoggedIn && userService.profileData == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          userService.refreshProfile();
+        });
       }
     }
   }

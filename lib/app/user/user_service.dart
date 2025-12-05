@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
+import 'package:limitless_flutter/core/exceptions/no_user_profile.dart';
 import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
 import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
@@ -35,6 +36,13 @@ class UserService extends ChangeNotifier {
     await refreshProfile();
   }
 
+  UserProfileData getLoggedInUserProfile() {
+    if (profileData == null) {
+      throw NoUserProfileException(userId: getCurrentUser().id);
+    }
+    return profileData!;
+  }
+
   // Reload profile of current user from database
   Future<void> refreshProfile() async {
     User user;
@@ -45,6 +53,7 @@ class UserService extends ChangeNotifier {
         'Attempted refreshing profile for a user that is not correctly logged in: ${e.toString()}',
       );
       _profileData = null;
+      _loadingProfile = false;
       notifyListeners();
       return;
     }

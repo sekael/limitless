@@ -15,14 +15,23 @@ class UserProfileData {
     this.country,
   });
 
-  factory UserProfileData.fromMap(Map<String, dynamic> m) => UserProfileData(
-    id: m['id'] as String,
-    username: m['username'],
-    firstName: m['first_name'],
-    lastName: m['last_name'],
-    dateOfBirth: DateTime.parse(m['date_of_birth'] as String),
-    country: m['country'],
-  );
+  factory UserProfileData.fromMap(Map<String, dynamic> m) {
+    DateTime? dob;
+    final dobRaw = m['date_of_birth'];
+    if (dobRaw is String && dobRaw.isNotEmpty) {
+      dob = DateTime.parse(dobRaw);
+    } else {
+      dob = null;
+    }
+    return UserProfileData(
+      id: m['id'] as String,
+      username: m['username'] as String?,
+      firstName: m['first_name'] as String?,
+      lastName: m['last_name'] as String?,
+      dateOfBirth: dob,
+      country: m['country'] as String?,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
