@@ -9,9 +9,6 @@ import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.d
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// TODO: Make users set a username to be used for display of public cookies
-// TODO: implement display of public cookies in dashboard (feed)
-
 class _AddCookieView extends StatefulWidget {
   const _AddCookieView({required this.rootContext});
 

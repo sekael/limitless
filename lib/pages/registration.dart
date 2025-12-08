@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
-import 'package:limitless_flutter/components/forms/date_picker.dart';
-import 'package:limitless_flutter/components/forms/name_form_field.dart';
 import 'package:limitless_flutter/components/text/body.dart';
-import 'package:limitless_flutter/components/text/form_selection.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
+import 'package:limitless_flutter/features/user_profile/presentation/user_profile_form.dart';
 import 'package:provider/provider.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -92,51 +90,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
-  Widget _countrySelection() {
-    final textColor = Theme.of(context).colorScheme.inverseSurface;
-
-    return FormField(
-      validator: (value) =>
-          (_countryCode == null) ? 'Country of residence is required' : null,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      builder: (field) {
-        return InkWell(
-          onTap: _submitting
-              ? null
-              : () {
-                  showCountryPicker(
-                    context: context,
-                    countryListTheme: CountryListThemeData(
-                      textStyle: TextStyle(color: textColor),
-                      borderRadius: BorderRadius.circular(8.0),
-                      flagSize: 12.0,
-                      searchTextStyle: TextStyle(color: textColor),
-                    ),
-                    onSelect: (Country country) {
-                      setState(() {
-                        _countryCode = country.countryCode;
-                        _countryName = country.name;
-                      });
-                      field.didChange(_countryCode);
-                    },
-                  );
-                },
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: 'Country of Residence',
-              border: OutlineInputBorder(),
-              errorText: field.errorText,
-            ),
-            child: FormSelectionText(
-              inputText: _countryName,
-              hintText: 'Select your country of residence',
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final userService = context.watch<UserService>();
@@ -164,32 +117,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           'We would like to get to know you a little bit!\nPlease fill out the following fields.',
                     ),
                     const SizedBox(height: 20),
-                    NameFormField(
-                      controller: _firstNameCtrl,
-                      labelText: 'First Name',
-                    ),
-                    const SizedBox(height: 16),
-                    NameFormField(
-                      controller: _lastNameCtrl,
-                      labelText: 'Last Name',
-                    ),
-                    const SizedBox(height: 16),
-                    NameFormField(
-                      controller: _usernameCtrl,
-                      labelText: 'Username',
-                    ),
-                    const SizedBox(height: 16),
-                    DatePicker(
-                      currentDate: _dob,
-                      emptyValidationText: 'Date of birth is required',
-                      incompleteValidationText:
-                          'Please complete all date fields',
-                      onDateChanged: (date) {
+                    UserProfileForm(
+                      firstNameCtrl: _firstNameCtrl,
+                      lastNameCtrl: _lastNameCtrl,
+                      usernameCtrl: _usernameCtrl,
+                      dob: _dob,
+                      onDobChanged: (date) {
                         _dob = date;
                       },
+                      countryCode: _countryCode,
+                      countryName: _countryName,
+                      onCountrySelected: (country) {
+                        setState(() {
+                          _countryCode = country.countryCode;
+                          _countryName = country.name;
+                        });
+                      },
                     ),
-                    const SizedBox(height: 16),
-                    _countrySelection(),
                     const SizedBox(height: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,

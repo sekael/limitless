@@ -7,7 +7,10 @@ import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
+import 'package:limitless_flutter/pages/user_profile.dart';
 import 'package:provider/provider.dart';
+
+// TODO: implement display of public cookies in dashboard (feed)
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -29,6 +32,7 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(32),
         scrolledUnderElevation: 0,
         actions: [
+          MyProfileButton(),
           AdaptiveGlassButton.async(
             buttonText: userService.signingOut ? 'Signing out ...' : 'Log Out',
             onPressed: () async {
