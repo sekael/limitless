@@ -25,7 +25,7 @@ class GlassButtonStyle {
   ) {
     final base = switch (intent) {
       GlassButtonIntent.primary => cs.primary,
-      GlassButtonIntent.secondary => cs.inversePrimary,
+      GlassButtonIntent.secondary => cs.tertiary,
     };
 
     final glass = switch (intent) {

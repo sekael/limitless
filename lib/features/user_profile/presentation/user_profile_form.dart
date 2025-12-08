@@ -1,0 +1,92 @@
+import 'package:country_picker/country_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/forms/date_picker.dart';
+import 'package:limitless_flutter/components/forms/name_form_field.dart';
+import 'package:limitless_flutter/components/text/form_selection.dart';
+
+class UserProfileForm extends StatelessWidget {
+  const UserProfileForm({
+    super.key,
+    required this.firstNameCtrl,
+    required this.lastNameCtrl,
+    required this.usernameCtrl,
+    required this.dob,
+    required this.onDobChanged,
+    required this.countryCode,
+    required this.countryName,
+    required this.onCountrySelected,
+  });
+
+  final TextEditingController firstNameCtrl;
+  final TextEditingController lastNameCtrl;
+  final TextEditingController usernameCtrl;
+
+  final DateTime? dob;
+  final ValueChanged<DateTime?> onDobChanged;
+
+  final String? countryCode;
+  final String? countryName;
+  final ValueChanged<Country> onCountrySelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.inverseSurface;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        NameFormField(controller: firstNameCtrl, labelText: 'First Name'),
+        const SizedBox(height: 16),
+        NameFormField(controller: lastNameCtrl, labelText: 'Last Name'),
+        const SizedBox(height: 16),
+        NameFormField(controller: usernameCtrl, labelText: 'Username'),
+        const SizedBox(height: 16),
+        DatePicker(
+          currentDate: dob,
+          emptyValidationText: 'Date of birth is required',
+          incompleteValidationText: 'Please complete all date fields',
+          onDateChanged: (date) {
+            onDobChanged;
+          },
+        ),
+        const SizedBox(height: 16),
+        FormField(
+          validator: (value) =>
+              (countryCode == null) ? 'Country of residence is required' : null,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          builder: (field) {
+            return InkWell(
+              onTap: () {
+                showCountryPicker(
+                  context: context,
+                  countryListTheme: CountryListThemeData(
+                    textStyle: TextStyle(color: textColor),
+                    borderRadius: BorderRadius.circular(8.0),
+                    flagSize: 12.0,
+                    searchTextStyle: TextStyle(color: textColor),
+                  ),
+                  onSelect: (Country country) {
+                    onCountrySelected(country);
+                    field.didChange(country.countryCode);
+                  },
+                );
+              },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Country of Residence',
+                  border: OutlineInputBorder(),
+                  errorText: field.errorText,
+                ),
+                child: FormSelectionText(
+                  inputText: countryName,
+                  hintText: 'Select your country of residence',
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
