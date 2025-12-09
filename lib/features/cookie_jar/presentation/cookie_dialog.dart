@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/config/constants.dart';
 
 Future<void> showAdaptiveCookieReveal(
   BuildContext context,
   Widget content,
 ) async {
   final size = MediaQuery.sizeOf(context);
-  final isWide = size.width >= 720;
+  final isWide = size.width >= SMALL_SCREEN_THRESHOLD;
 
   if (!isWide) {
     // Mobile or small screens
@@ -37,7 +38,10 @@ Future<void> showAdaptiveCookieReveal(
       builder: (_) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 720, maxWidth: 800),
+          constraints: BoxConstraints(
+            minWidth: SMALL_SCREEN_THRESHOLD,
+            maxWidth: SMALL_SCREEN_MAX_WIDTH,
+          ),
           child: Padding(padding: const EdgeInsets.all(24), child: content),
         ),
       ),

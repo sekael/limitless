@@ -5,6 +5,7 @@ import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
+import 'package:limitless_flutter/config/constants.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
 import 'package:limitless_flutter/pages/user_profile.dart';
@@ -22,27 +23,51 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.sizeOf(context).width > SMALL_SCREEN_THRESHOLD;
     final userService = context.watch<UserService>();
     final userProfile = userService.getLoggedInUserProfile();
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Limitless'),
         backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(32),
         scrolledUnderElevation: 0,
         actions: [
-          MyProfileButton(),
-          AdaptiveGlassButton.async(
-            buttonText: userService.signingOut ? 'Signing out ...' : 'Log Out',
-            onPressed: () async {
-              userService.signingOut
-                  ? null
-                  : userService.handleSignOut(context);
-            },
-          ),
+          if (isWide) ...[
+            MyProfileButton(),
+            AdaptiveGlassButton.async(
+              buttonText: userService.signingOut
+                  ? 'Signing out ...'
+                  : 'Log Out',
+              onPressed: () async {
+                userService.signingOut
+                    ? null
+                    : userService.handleSignOut(context);
+              },
+            ),
+          ] else
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              ),
+            ),
         ],
       ),
+      endDrawer: isWide
+          ? null
+          : _DashboardMenuDrawer(
+              onMyProfile: () => showAdaptiveUserProfilePage(context),
+              onLogout: () async {
+                userService.signingOut
+                    ? null
+                    : userService.handleSignOut(context);
+              },
+            ),
       body: SafeArea(
         child: Stack(
           fit: StackFit.expand,
@@ -102,6 +127,58 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardMenuDrawer extends StatelessWidget {
+  const _DashboardMenuDrawer({
+    required this.onMyProfile,
+    required this.onLogout,
+  });
+
+  final VoidCallback onMyProfile;
+  final VoidCallback onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 0.0, 4.0),
+              child: Text(
+                'Dashboard',
+                style: textTheme.titleLarge!.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('My Profile'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onMyProfile();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onLogout();
+              },
+            ),
           ],
         ),
       ),

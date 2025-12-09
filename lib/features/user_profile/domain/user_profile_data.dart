@@ -51,4 +51,12 @@ class UserProfileData {
         (dateOfBirth != null) &&
         (country != null && country!.trim().isNotEmpty);
   }
+
+  String prettyPrintBirthday() {
+    if (dateOfBirth == null) {
+      throw Exception('Cannot pretty-print non-existing birthdate');
+    }
+
+    return '${dateOfBirth!.day.toString().padLeft(2, '0')}.${dateOfBirth!.month.toString().padLeft(2, '0')}.${dateOfBirth!.year}';
+  }
 }
