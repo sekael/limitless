@@ -46,9 +46,7 @@ class UserProfileForm extends StatelessWidget {
           currentDate: dob,
           emptyValidationText: 'Date of birth is required',
           incompleteValidationText: 'Please complete all date fields',
-          onDateChanged: (date) {
-            onDobChanged;
-          },
+          onDateChanged: onDobChanged,
         ),
         const SizedBox(height: 16),
         FormField(

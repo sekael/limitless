@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
-import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
@@ -40,9 +39,6 @@ class _DashboardGateState extends State<DashboardGate> {
     final profile = userService.profileData;
 
     if (userService.loadingProfile || userService.signingOut) {
-      logger.i(
-        'loadingProfile = ${userService.loadingProfile}, signingOut = ${userService.signingOut}',
-      );
       return Scaffold(
         body: Center(child: CircularProgressIndicator.adaptive()),
       );
