@@ -83,7 +83,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(height: 24),
                     TitleText(
                       titleText:
-                          'Welcome to Limitless ${userProfile.firstName}!',
+                          'Welcome to Limitless, ${userProfile.firstName}!',
                     ),
                     const SizedBox(height: 8),
                     const CenterAlignedBodyText(

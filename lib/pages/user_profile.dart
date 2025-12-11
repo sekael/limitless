@@ -83,9 +83,14 @@ class UserProfilePage extends StatelessWidget {
       body: SafeArea(
         child: user == null
             ? Center(child: CircularProgressIndicator.adaptive())
-            : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: _ProfileContent(currentUser: user),
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(20, 16, 20, bottomInset + 16),
+                    child: _ProfileContent(currentUser: user),
+                  );
+                },
               ),
       ),
     );
