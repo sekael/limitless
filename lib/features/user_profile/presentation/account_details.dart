@@ -95,7 +95,12 @@ class _AccountDetailsState extends State<AccountDetails> {
       if (!mounted) return;
       setState(() => _isEditing = false);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          currentUser = userService.getLoggedInUserProfile();
+        });
+      }
     }
   }
 
