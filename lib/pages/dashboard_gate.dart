@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
-import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
 import 'package:limitless_flutter/pages/registration.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +57,7 @@ class _DashboardGateState extends State<DashboardGate> {
     }
 
     return ChangeNotifierProvider(
-      create: (_) => CookieCollection(
+      create: (_) => CookieService(
         repository: CookieRepositoryAdapter(),
         userId: profile.id,
       )..init(),

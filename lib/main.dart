@@ -16,10 +16,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/theme/theme.dart';
 
-// TODO: edit/delete existing cookies
-// TODO: enforce username uniqueness
-// TODO: enable languages DE, JP
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SupabaseClient supabase = await initializeClientFromFile('prod.env');

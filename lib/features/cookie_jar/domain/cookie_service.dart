@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 
-class CookieCollection extends ChangeNotifier {
-  CookieCollection({
+class CookieService extends ChangeNotifier {
+  CookieService({
     required this.repository,
     required this.userId,
     this.pageSize = 20,
@@ -30,9 +30,6 @@ class CookieCollection extends ChangeNotifier {
   DateTime? _oldestFetched;
   bool _hasMore = true;
   bool _loading = false;
-
-  Cookie? get peek => _queue.isNotEmpty ? _queue.first : null;
-  bool get hasNext => _queue.isNotEmpty;
 
   Future<void> init() async {
     if (_queue.length < queueTarget) {
@@ -73,12 +70,32 @@ class CookieCollection extends ChangeNotifier {
     repository.insertNewCookieForUser(userId, content, isPublic);
   }
 
-  Future<void> deleteCookie(String cookieId) async {
-    repository.deleteCookie(cookieId);
+  Future<Cookie> updateCookie(Cookie newCookie) async {
+    // Update cookie in repository
+    final updatedCookie = await repository.updateCookie(newCookie);
+
+    // Update queue and shown cookies
+    for (final cookie in _queue) {
+      // Only update if updated cookie is present in queue
+      if (cookie.id == updatedCookie.id) {
+        final rebuiltQueue = Queue<Cookie>();
+        for (final oldCookie in _queue) {
+          rebuiltQueue.add(
+            oldCookie.id == updatedCookie.id ? updatedCookie : oldCookie,
+          );
+        }
+        _queue
+          ..clear()
+          ..addAll(rebuiltQueue);
+        break;
+      }
+    }
+    notifyListeners();
+    return updatedCookie;
   }
 
-  Future<Cookie> updateCookie(Cookie updatedCookie) async {
-    return repository.updateCookie(updatedCookie);
+  Future<void> deleteCookie(String cookieId) async {
+    repository.deleteCookie(cookieId);
   }
 
   // Create a simple, deterministic seed from the userId
