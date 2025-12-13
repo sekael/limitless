@@ -16,11 +16,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/theme/theme.dart';
 
-// TODO: validators on profile data inputs
 // TODO: edit/delete existing cookies
-// TODO: better snackbar text after adding a cookie
-// TODO: shorter text on registration page for mobile
-// TODO: welcome banner on dashboard wording
+// TODO: enforce username uniqueness
 // TODO: enable languages DE, JP
 
 void main() async {

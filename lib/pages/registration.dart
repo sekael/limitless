@@ -114,7 +114,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   children: [
                     CenterAlignedBodyText(
                       bodyText:
-                          'We would like to get to know you a little bit!\nPlease fill out the following fields.',
+                          'Tell us a little something about you!\nPlease fill out the following fields.',
                     ),
                     const SizedBox(height: 20),
                     UserProfileForm(

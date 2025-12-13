@@ -60,7 +60,9 @@ class _AddCookieViewState extends State<_AddCookieView> {
       );
       if (Navigator.of(context).mounted) Navigator.of(context).pop();
       if (context.mounted) {
-        messenger.showSnackBar(const SnackBar(content: Text('Cookie added!')));
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Awesome, you baked a new cookie!')),
+        );
       }
     } on PostgrestException catch (e) {
       setState(() => _submitting = false);

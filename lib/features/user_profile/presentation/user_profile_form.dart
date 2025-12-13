@@ -2,6 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/forms/date_picker.dart';
 import 'package:limitless_flutter/components/forms/name_form_field.dart';
+import 'package:limitless_flutter/components/forms/validators.dart';
 import 'package:limitless_flutter/components/text/form_selection.dart';
 
 class UserProfileForm extends StatelessWidget {
@@ -28,6 +29,37 @@ class UserProfileForm extends StatelessWidget {
   final String? countryName;
   final ValueChanged<Country> onCountrySelected;
 
+  String? firstLastNameValidator(String? inputText, String fieldName) {
+    final value = inputText?.trim() ?? '';
+    if (value.isEmpty) {
+      return "$fieldName is required";
+    }
+    if (value.length > 50) {
+      return '$fieldName must be at most 50 characters long';
+    }
+    if (!value.isValidName) {
+      return "$fieldName must contain only Latin letters";
+    }
+    return null;
+  }
+
+  String? usernameValidator(String? inputText) {
+    final value = inputText?.trim() ?? '';
+    if (value.isEmpty) {
+      return "Username is required";
+    }
+    if (value.length > 50) {
+      return 'Username must be at most 50 characters long';
+    }
+    if (value.length < 6) {
+      return 'Username must be at least 6 characters long';
+    }
+    if (!value.containsOnlyValidCharacters) {
+      return 'Allowed are letters, numbers, dashes';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -36,11 +68,25 @@ class UserProfileForm extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        NameFormField(controller: firstNameCtrl, labelText: 'First Name'),
+        NameFormField(
+          controller: firstNameCtrl,
+          labelText: 'First Name',
+          validatorOverride: (value) =>
+              firstLastNameValidator(value, "First Name"),
+        ),
         const SizedBox(height: 16),
-        NameFormField(controller: lastNameCtrl, labelText: 'Last Name'),
+        NameFormField(
+          controller: lastNameCtrl,
+          labelText: 'Last Name',
+          validatorOverride: (value) =>
+              firstLastNameValidator(value, "Last Name"),
+        ),
         const SizedBox(height: 16),
-        NameFormField(controller: usernameCtrl, labelText: 'Username'),
+        NameFormField(
+          controller: usernameCtrl,
+          labelText: 'Username',
+          validatorOverride: (value) => usernameValidator(value),
+        ),
         const SizedBox(height: 16),
         DatePicker(
           currentDate: dob,
