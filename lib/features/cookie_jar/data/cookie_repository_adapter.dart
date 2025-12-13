@@ -1,8 +1,8 @@
 import 'dart:math';
 
+import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
-import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const _table = 'accomplishments';
@@ -57,10 +57,26 @@ class CookieRepositoryAdapter implements CookieRepository {
     String content,
     bool isPublic,
   ) async {
-    await _client.from('accomplishments').insert({
+    await _client.from(_table).insert({
       'user_id': userId,
       'content': content,
       'is_public': isPublic,
     });
+  }
+
+  @override
+  Future<void> deleteCookie(String cookieId) async {
+    await _client.from(_table).delete().eq('id', cookieId);
+  }
+
+  @override
+  Future<Cookie> updateCookie(Cookie updatedCookie) async {
+    final inserted = await _client
+        .from(_table)
+        .update(updatedCookie.toMap())
+        .eq('id', updatedCookie.id)
+        .select();
+
+    return Cookie.fromMap(inserted.first);
   }
 }

@@ -17,4 +17,13 @@ class Cookie {
     createdAt: DateTime.parse(m['created_at'] as String),
     isPublic: m['is_public'] as bool,
   );
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "content": content,
+      "createdAt": createdAt.toIso8601String(),
+      "isPublic": isPublic,
+    };
+  }
 }

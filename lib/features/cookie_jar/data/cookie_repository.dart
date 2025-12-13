@@ -16,4 +16,8 @@ abstract class CookieRepository {
     String content,
     bool isPublic,
   );
+
+  Future<void> deleteCookie(String cookieId);
+
+  Future<Cookie> updateCookie(Cookie updatedCookie);
 }

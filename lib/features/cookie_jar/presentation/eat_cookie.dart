@@ -33,12 +33,7 @@ class _CookieView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        CookieCard(
-          cookie: cookie,
-          onClose: () => Navigator.of(context).maybePop(),
-        ),
-      ],
+      children: [CookieCard(cookie: cookie)],
     );
   }
 }

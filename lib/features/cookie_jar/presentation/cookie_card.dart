@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
+import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 
 class CookieCard extends StatelessWidget {
-  const CookieCard({
-    super.key,
-    required this.cookie,
-    this.onClose,
-    this.onBake,
-  });
+  const CookieCard({super.key, required this.cookie});
 
   final Cookie cookie;
-  final VoidCallback? onClose;
-  final VoidCallback? onBake;
 
   @override
   Widget build(BuildContext context) {
@@ -41,22 +35,28 @@ class CookieCard extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.center,
+        const SizedBox(height: 24),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (onBake != null)
-              AdaptiveGlassButton.sync(
-                buttonText: 'Bake Another',
-                onPressed: onBake!,
+            SizedBox(
+              width: 200,
+              child: AdaptiveGlassButton.sync(
+                buttonText: 'Edit this Cookie',
+                leadingIcon: Icon(Icons.edit),
+                onPressed: () {},
               ),
-            if (onClose != null)
-              AdaptiveGlassButton.sync(
-                buttonText: 'Finish Eating',
-                onPressed: onClose!,
+            ),
+            SizedBox(
+              width: 200,
+              child: AdaptiveGlassButton.sync(
+                buttonText: 'Delete this Cookie',
+                leadingIcon: Icon(Icons.delete_forever_outlined),
+                onPressed: () {},
+                intent: GlassButtonIntent.secondary,
               ),
+            ),
           ],
         ),
       ],
