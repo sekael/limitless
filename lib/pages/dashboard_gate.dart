@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
-import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
-import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
-import 'package:limitless_flutter/pages/registration.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardGate extends StatefulWidget {
   const DashboardGate({super.key});
@@ -14,54 +13,61 @@ class DashboardGate extends StatefulWidget {
 }
 
 class _DashboardGateState extends State<DashboardGate> {
-  bool _requestedProfile = false;
+  String? _lastUserId;
+  bool _redirectScheduled = false;
+  bool _refreshScheduled = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void _scheduleProfileRefresh() {
+    if (_refreshScheduled) return;
+    _refreshScheduled = true;
 
-    if (!_requestedProfile) {
-      _requestedProfile = true;
-      final userService = context.read<UserService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      _refreshScheduled = false;
+      await context.read<UserService>().refreshProfile();
+    });
+  }
 
-      if (userService.isLoggedIn && userService.profileData == null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          userService.refreshProfile();
-        });
-      }
-    }
+  void _scheduleRedirect(String routeName) {
+    if (_redirectScheduled) return;
+    _redirectScheduled = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed(routeName);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<Session?>();
     final userService = context.watch<UserService>();
-    final profile = userService.profileData;
 
+    // Check that user is logged in
+    if (session == null) {
+      _scheduleRedirect('/login');
+      return const SizedBox.shrink();
+    }
+
+    if (userService.profileData == null && !userService.loadingProfile) {
+      _scheduleProfileRefresh();
+    }
+
+    // Wait until latest profile data is completely fetched
     if (userService.loadingProfile || userService.signingOut) {
       return Scaffold(
         body: Center(child: CircularProgressIndicator.adaptive()),
       );
     }
 
-    if (!userService.isLoggedIn) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!context.mounted) return;
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      });
+    final profile = userService.profileData;
+    if (profile == null || !profile.isComplete()) {
+      logger.i('Redirecting to registration page');
+      _scheduleRedirect('/register');
       return const SizedBox.shrink();
     }
 
-    if (profile == null || !profile.isComplete()) {
-      return const RegistrationPage();
-    }
-
-    return ChangeNotifierProvider(
-      create: (_) => CookieService(
-        repository: CookieRepositoryAdapter(),
-        userId: profile.id,
-      )..init(),
-      child: const DashboardPage(),
-    );
+    logger.i('Opening dashboard');
+    return const DashboardPage();
   }
 }

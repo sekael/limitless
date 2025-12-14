@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
 import 'package:limitless_flutter/config/theme/theme_provider.dart';
 import 'package:limitless_flutter/core/supabase/bootstrap.dart';
+import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
+import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository_adapter.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
@@ -11,6 +16,7 @@ import 'package:limitless_flutter/pages/dashboard_gate.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
+import 'package:limitless_flutter/pages/registration.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,14 +29,28 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        Provider<QuotesRepository>(
-          create: (_) => QuotesRepositoryAdapter(supabase),
+        Provider<QuotesRepository>(create: (_) => QuotesRepositoryAdapter()),
+        Provider<CookieRepository>(create: (_) => CookieRepositoryAdapter()),
+        StreamProvider<Session?>(
+          create: (_) => supabase.auth.onAuthStateChange.map((e) => e.session),
+          initialData: supabase.auth.currentSession,
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(
           create: (_) =>
               UserService(userProfileRepository: UserProfileRepositoryAdapter())
                 ..init(),
+        ),
+        ChangeNotifierProxyProvider<Session?, CookieService>(
+          create: (context) =>
+              CookieService(repository: context.read<CookieRepository>()),
+          update: (context, session, cookieService) {
+            cookieService ??= CookieService(
+              repository: context.read<CookieRepository>(),
+            );
+            unawaited(cookieService.setUser(session?.user.id));
+            return cookieService;
+          },
         ),
       ],
       child: MainApp(),
@@ -77,6 +97,11 @@ class MainApp extends StatelessWidget {
           case '/dashboard':
             return SlideRightToLeftPageRoute(
               builder: (_) => const DashboardGate(),
+              settings: settings,
+            );
+          case '/register':
+            return SlideRightToLeftPageRoute(
+              builder: (_) => const RegistrationPage(),
               settings: settings,
             );
           default:

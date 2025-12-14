@@ -52,16 +52,17 @@ class CookieRepositoryAdapter implements CookieRepository {
   }
 
   @override
-  Future<void> insertNewCookieForUser(
+  Future<Cookie> insertNewCookie(
     String userId,
     String content,
     bool isPublic,
   ) async {
-    await _client.from(_table).insert({
+    final newCookieResponse = await _client.from(_table).insert({
       'user_id': userId,
       'content': content,
       'is_public': isPublic,
-    });
+    }).select();
+    return Cookie.fromMap(newCookieResponse.first);
   }
 
   @override

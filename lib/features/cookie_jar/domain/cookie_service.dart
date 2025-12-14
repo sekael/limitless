@@ -3,25 +3,26 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/core/exceptions/cookie_not_owned.dart';
+import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 
 class CookieService extends ChangeNotifier {
   CookieService({
     required this.repository,
-    required this.userId,
     this.pageSize = 20,
     this.queueTarget = 10,
     this.lowWater = 3,
-    int? seed,
-  }) : _rng = Random(seed ?? _deriveSeed(userId));
+  });
 
   final CookieRepository repository;
-  final String userId;
   final int pageSize;
   final int queueTarget;
   final int lowWater; // when to fetch new results
-  final Random _rng;
+
+  Random? _rng;
+  String? _userId;
 
   final Queue<Cookie> _queue = Queue();
   final Set<String> _shownCookies = <String>{};
@@ -30,14 +31,33 @@ class CookieService extends ChangeNotifier {
   DateTime? _oldestFetched;
   bool _hasMore = true;
   bool _loading = false;
+  int _generation = 0; // protection against stale async fills
 
-  Future<void> init() async {
-    if (_queue.length < queueTarget) {
+  Future<void> setUser(String? userId) async {
+    if (_userId == userId) return;
+
+    _userId = userId;
+    _rng = userId == null ? null : Random(_deriveSeed(userId));
+
+    // Reset per-user state
+    _queue.clear();
+    _shownCookies.clear();
+    _oldestFetched = null;
+    _hasMore = true;
+    _loading = false;
+
+    // Invalidate in-flight fetches
+    _generation++;
+    notifyListeners();
+
+    if (_userId != null) {
       await _fillQueueUntil(queueTarget);
     }
   }
 
   Future<Cookie?> next() async {
+    if (_userId == null) return null;
+
     if (_queue.isEmpty) {
       await _fillQueueUntil(lowWater);
       if (_queue.isEmpty) return null;
@@ -62,44 +82,55 @@ class CookieService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> insertNewCookieForUser(
+  Future<void> addNewCookie(
     String userId,
     String content,
     bool isPublic,
   ) async {
-    repository.insertNewCookieForUser(userId, content, isPublic);
+    if (_userId == null) throw UnauthenticatedUserException();
+    if (userId != _userId) throw CookieNotOwnedByUserException();
+
+    final newCookie = await repository.insertNewCookie(
+      userId,
+      content,
+      isPublic,
+    );
+    _queue.addLast(newCookie);
+    notifyListeners();
   }
 
-  Future<Cookie> updateCookie(Cookie newCookie) async {
+  Future<Cookie> updateCookie(Cookie updatedCookie) async {
+    if (_userId == null) throw UnauthenticatedUserException();
+    if (updatedCookie.userId != _userId) throw CookieNotOwnedByUserException();
+
     // Update cookie in repository
-    final updatedCookie = await repository.updateCookie(newCookie);
+    final cookieAfterUpdate = await repository.updateCookie(updatedCookie);
 
     // Update queue and shown cookies
-    for (final cookie in _queue) {
-      // Only update if updated cookie is present in queue
-      if (cookie.id == updatedCookie.id) {
-        final rebuiltQueue = Queue<Cookie>();
-        for (final oldCookie in _queue) {
-          rebuiltQueue.add(
-            oldCookie.id == updatedCookie.id ? updatedCookie : oldCookie,
-          );
-        }
-        _queue
-          ..clear()
-          ..addAll(rebuiltQueue);
-        break;
-      }
+    if (_queue.any((c) => c.id == cookieAfterUpdate.id)) {
+      final rebuiltQueue = Queue<Cookie>.from(
+        _queue.map((c) => c.id == cookieAfterUpdate.id ? cookieAfterUpdate : c),
+      );
+      _queue
+        ..clear()
+        ..addAll(rebuiltQueue);
+      notifyListeners();
     }
-    notifyListeners();
-    return updatedCookie;
+    return cookieAfterUpdate;
   }
 
-  Future<void> deleteCookie(String cookieId) async {
-    repository.deleteCookie(cookieId);
+  Future<void> deleteCookie(Cookie cookieToDelete) async {
+    if (_userId == null) throw UnauthenticatedUserException();
+    if (cookieToDelete.userId != _userId) throw CookieNotOwnedByUserException();
+
+    await repository.deleteCookie(cookieToDelete.id);
+    _queue.removeWhere((c) => c.id == cookieToDelete.id);
+    _shownCookies.remove(cookieToDelete.id);
+    notifyListeners();
   }
 
   // Create a simple, deterministic seed from the userId
-  static int _deriveSeed(String userId) {
+  int _deriveSeed(String userId) {
     int h = 0;
     for (final c in userId.codeUnits) {
       h = (h * 31 + c) & 0x7fffffff;
@@ -108,12 +139,20 @@ class CookieService extends ChangeNotifier {
   }
 
   Future<void> _fillQueueUntil(int target) async {
+    if (_userId == null) return;
     if (_loading) return;
+
+    final localGeneration = _generation;
+    final localUserId = _userId!;
+
     _loading = true;
     try {
       while (_queue.length < target && _hasMore) {
+        // If user changed while fetching -> stop
+        if (localGeneration != _generation || _userId != localUserId) return;
+
         final page = await repository.fetchCookiesFromBeforeDate(
-          userId: userId,
+          userId: localUserId,
           limit: pageSize,
           before: _oldestFetched,
         );
@@ -132,8 +171,9 @@ class CookieService extends ChangeNotifier {
             .toList();
 
         // Shuffle cookies deterministically
+        final rng = _rng!;
         for (int i = freshCookies.length - 1; i > 0; i--) {
-          final j = _rng.nextInt(i + 1);
+          final j = rng.nextInt(i + 1);
           final tmp = freshCookies[i];
           freshCookies[i] = freshCookies[j];
           freshCookies[j] = tmp;

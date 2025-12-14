@@ -5,7 +5,7 @@ import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
-import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 
 Future<Cookie?> _eatCookie(BuildContext context) async {
   try {
-    return await context.read<CookieCollection>().next();
+    return await context.read<CookieService>().next();
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       ErrorSnackbar(
@@ -94,7 +94,7 @@ class EatCookieButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _ = context.watch<CookieCollection>();
+    final _ = context.watch<CookieService>();
 
     return AdaptiveGlassButton.async(
       buttonText: 'Eat a Cookie',

@@ -6,7 +6,7 @@ import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/config/constants.dart';
 import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
-import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -53,7 +53,7 @@ class _AddCookieViewState extends State<_AddCookieView> {
     setState(() => _submitting = true);
     final text = _controller.text.trim();
     try {
-      await context.read<CookieCollection>().insertNewCookieForUser(
+      await context.read<CookieService>().addNewCookie(
         user.id,
         text,
         _isPublic,
@@ -207,7 +207,7 @@ class AddCookiePage extends StatelessWidget {
 }
 
 Future<void> showAdaptiveAddCookiePage(BuildContext context) async {
-  final collection = context.read<CookieCollection>();
+  final collection = context.read<CookieService>();
   final size = MediaQuery.sizeOf(context);
   final isWide = size.width >= SMALL_SCREEN_THRESHOLD;
 

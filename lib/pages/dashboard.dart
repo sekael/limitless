@@ -6,7 +6,6 @@ import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/components/text/title.dart';
 import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/config/constants.dart';
-import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
 import 'package:limitless_flutter/pages/user_profile.dart';
@@ -29,7 +28,6 @@ class _DashboardPageState extends State<DashboardPage> {
     final isWide = MediaQuery.sizeOf(context).width > SMALL_SCREEN_THRESHOLD;
     final userService = context.watch<UserService>();
     final userProfile = userService.getLoggedInUserProfile();
-    final cookieService = context.watch<CookieService>();
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),

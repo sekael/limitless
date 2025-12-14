@@ -99,7 +99,6 @@ class _CookieEditFormState extends State<CookieEditForm> {
             style: textTheme.bodyMedium?.copyWith(
               color: colorScheme.inverseSurface,
             ),
-            onFieldSubmitted: (_) => widget.onSubmit,
           ),
         ),
         Row(

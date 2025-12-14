@@ -11,11 +11,7 @@ abstract class CookieRepository {
     int limit = 20,
   });
 
-  Future<void> insertNewCookieForUser(
-    String userId,
-    String content,
-    bool isPublic,
-  );
+  Future<Cookie> insertNewCookie(String userId, String content, bool isPublic);
 
   Future<void> deleteCookie(String cookieId);
 
