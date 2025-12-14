@@ -132,9 +132,10 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                               ),
                             )
                             .catchError(
-                              (_) => messenger.showSnackBar(
+                              (err) => messenger.showSnackBar(
                                 ErrorSnackbar(
-                                  message: 'Could not resend code',
+                                  message:
+                                      'Could not resend code because of error: $err',
                                 ).build(),
                               ),
                             );

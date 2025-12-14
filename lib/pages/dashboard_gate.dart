@@ -13,7 +13,6 @@ class DashboardGate extends StatefulWidget {
 }
 
 class _DashboardGateState extends State<DashboardGate> {
-  String? _lastUserId;
   bool _redirectScheduled = false;
   bool _refreshScheduled = false;
 

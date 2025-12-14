@@ -39,7 +39,7 @@ class CookieRepositoryAdapter implements CookieRepository {
   }) async {
     var query = _client
         .from(_table)
-        .select('id, content, created_at, is_public')
+        .select('id, user_id, content, created_at, is_public')
         .eq('user_id', userId);
     if (before != null) {
       query.lt('created_at', before.toIso8601String());
