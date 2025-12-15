@@ -16,11 +16,15 @@ import 'package:limitless_flutter/pages/dashboard_gate.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
-import 'package:limitless_flutter/pages/registration.dart';
+import 'package:limitless_flutter/pages/registration_gate.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/theme/theme.dart';
+
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +35,7 @@ void main() async {
       providers: [
         Provider<QuotesRepository>(create: (_) => QuotesRepositoryAdapter()),
         Provider<CookieRepository>(create: (_) => CookieRepositoryAdapter()),
+        Provider<SupabaseClient>.value(value: supabase),
         StreamProvider<Session?>(
           create: (_) => supabase.auth.onAuthStateChange.map((e) => e.session),
           initialData: supabase.auth.currentSession,
@@ -70,6 +75,8 @@ class MainApp extends StatelessWidget {
       theme: lightMode,
       darkTheme: darkMode,
       themeMode: provider.mode,
+      navigatorKey: rootNavigatorKey,
+      scaffoldMessengerKey: rootMessengerKey,
       builder: (context, child) {
         return Stack(
           fit: StackFit.expand,

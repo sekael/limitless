@@ -37,6 +37,9 @@ class UserProfileForm extends StatelessWidget {
     if (value.length > 50) {
       return '$fieldName must be at most 50 characters long';
     }
+    if (!value.startsWithUpperCase) {
+      return "$fieldName must start with an upper case letter";
+    }
     if (!value.isValidName) {
       return "$fieldName must contain only Latin letters";
     }
