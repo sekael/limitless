@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/core/logging/app_logger.dart';
+import 'package:limitless_flutter/core/require_session.dart';
+import 'package:limitless_flutter/main.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardGate extends StatefulWidget {
   const DashboardGate({super.key});
@@ -16,6 +17,12 @@ class _DashboardGateState extends State<DashboardGate> {
   bool _redirectScheduled = false;
   bool _refreshScheduled = false;
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   void _scheduleProfileRefresh() {
     if (_refreshScheduled) return;
     _refreshScheduled = true;
@@ -27,46 +34,50 @@ class _DashboardGateState extends State<DashboardGate> {
     });
   }
 
-  void _scheduleRedirect(String routeName) {
+  void _scheduleRegisterRedirect(String routeName) {
     if (_redirectScheduled) return;
     _redirectScheduled = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(routeName);
+      final navigator = rootNavigatorKey.currentState;
+      if (navigator == null) return;
+      navigator.pushReplacementNamed('/register');
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final session = context.watch<Session?>();
-    final userService = context.watch<UserService>();
+    return RequireSessionGate(
+      redirectRoute: '/',
+      showLoginErrorWhenNotAuthenticated: true,
+      loginErrorMessage:
+          'Sorry, we could not log you in correctly. Please try again.',
+      child: Builder(
+        builder: (context) {
+          final userService = context.watch<UserService>();
 
-    // Check that user is logged in
-    if (session == null) {
-      _scheduleRedirect('/login');
-      return const SizedBox.shrink();
-    }
+          if (userService.profileData == null && !userService.loadingProfile) {
+            _scheduleProfileRefresh();
+          }
+          // Wait until latest profile data is completely fetched
+          if (userService.loadingProfile || userService.signingOut) {
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator.adaptive()),
+            );
+          }
 
-    if (userService.profileData == null && !userService.loadingProfile) {
-      _scheduleProfileRefresh();
-    }
+          final profile = userService.profileData;
+          if (profile == null || !profile.isComplete()) {
+            logger.i('Redirecting to registration page');
+            _scheduleRegisterRedirect('/register');
+            return const SizedBox.shrink();
+          }
 
-    // Wait until latest profile data is completely fetched
-    if (userService.loadingProfile || userService.signingOut) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator.adaptive()),
-      );
-    }
-
-    final profile = userService.profileData;
-    if (profile == null || !profile.isComplete()) {
-      logger.i('Redirecting to registration page');
-      _scheduleRedirect('/register');
-      return const SizedBox.shrink();
-    }
-
-    logger.i('Opening dashboard');
-    return const DashboardPage();
+          logger.i('Opening dashboard');
+          _redirectScheduled = false;
+          return const DashboardPage();
+        },
+      ),
+    );
   }
 }

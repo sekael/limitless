@@ -28,18 +28,20 @@ final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SupabaseClient supabase = await initializeClientFromFile('prod.env');
+  await initializeClientFromFile('prod.env');
 
   runApp(
     MultiProvider(
       providers: [
+        StreamProvider<Session?>(
+          create: (_) => Supabase.instance.client.auth.onAuthStateChange.map(
+            (data) => data.session,
+          ),
+          initialData: Supabase.instance.client.auth.currentSession,
+          catchError: (context, error) => null,
+        ),
         Provider<QuotesRepository>(create: (_) => QuotesRepositoryAdapter()),
         Provider<CookieRepository>(create: (_) => CookieRepositoryAdapter()),
-        Provider<SupabaseClient>.value(value: supabase),
-        StreamProvider<Session?>(
-          create: (_) => supabase.auth.onAuthStateChange.map((e) => e.session),
-          initialData: supabase.auth.currentSession,
-        ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(
           create: (_) =>
@@ -108,7 +110,7 @@ class MainApp extends StatelessWidget {
             );
           case '/register':
             return SlideRightToLeftPageRoute(
-              builder: (_) => const RegistrationPage(),
+              builder: (_) => const RegistrationGate(),
               settings: settings,
             );
           default:
