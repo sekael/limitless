@@ -162,7 +162,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           onPressed: _submitting
                               ? null
                               : () async {
-                                  userService.handleSignOut(context);
+                                  userService.handleSignOut();
                                 },
                           child: const Text('Cancel Registration'),
                         ),

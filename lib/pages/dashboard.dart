@@ -11,7 +11,6 @@ import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.da
 import 'package:limitless_flutter/pages/user_profile.dart';
 import 'package:provider/provider.dart';
 
-// TODO: debug issues with login/registration page
 // TODO: implement display of public cookies in dashboard (feed)
 // TODO: edit/delete existing cookies
 // TODO: enforce username uniqueness
@@ -46,7 +45,7 @@ class _DashboardPageState extends State<DashboardPage> {
               onPressed: () async {
                 userService.signingOut
                     ? null
-                    : userService.handleSignOut(context);
+                    : await context.read<UserService>().handleSignOut();
               },
             ),
           ] else
@@ -67,7 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
               onLogout: () async {
                 userService.signingOut
                     ? null
-                    : userService.handleSignOut(context);
+                    : await context.read<UserService>().handleSignOut();
               },
             ),
       body: SafeArea(

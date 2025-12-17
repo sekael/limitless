@@ -17,12 +17,6 @@ class _DashboardGateState extends State<DashboardGate> {
   bool _redirectScheduled = false;
   bool _refreshScheduled = false;
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
-
   void _scheduleProfileRefresh() {
     if (_refreshScheduled) return;
     _refreshScheduled = true;
@@ -38,6 +32,7 @@ class _DashboardGateState extends State<DashboardGate> {
     if (_redirectScheduled) return;
     _redirectScheduled = true;
 
+    logger.i('Scheduling redirect to registration page');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final navigator = rootNavigatorKey.currentState;
       if (navigator == null) return;
@@ -68,7 +63,7 @@ class _DashboardGateState extends State<DashboardGate> {
 
           final profile = userService.profileData;
           if (profile == null || !profile.isComplete()) {
-            logger.i('Redirecting to registration page');
+            if (!_redirectScheduled) {}
             _scheduleRegisterRedirect('/register');
             return const SizedBox.shrink();
           }

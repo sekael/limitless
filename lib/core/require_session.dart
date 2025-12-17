@@ -53,18 +53,18 @@ class _RequireSessionGateState extends State<RequireSessionGate> {
     final effectiveSession = session ?? supabaseSession;
 
     if (effectiveSession == null) {
-      logger.i(
-        'Retrieved active user session, scheduling redirect to ${widget.redirectRoute}',
-      );
+      if (!_redirectScheduled) {
+        logger.w(
+          'No active user session available, scheduling redirect to ${widget.redirectRoute}',
+        );
+      }
+
       // If log out is intentional, do not show snackbar
       final showSnackBar =
           widget.showLoginErrorWhenNotAuthenticated && !signingOut;
       _scheduleRedirect(showSnackBar: showSnackBar);
       return const SizedBox.shrink();
-    } else {
-      logger.w('No active user session available!');
     }
-
     // If session still extists or exists again, allow future redirects
     _redirectScheduled = false;
 
