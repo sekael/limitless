@@ -16,6 +16,7 @@ class UserProfileForm extends StatelessWidget {
     required this.countryCode,
     required this.countryName,
     required this.onCountrySelected,
+    this.asyncUsernameError,
   });
 
   final TextEditingController firstNameCtrl;
@@ -28,6 +29,8 @@ class UserProfileForm extends StatelessWidget {
   final String? countryCode;
   final String? countryName;
   final ValueChanged<Country> onCountrySelected;
+
+  final String? asyncUsernameError;
 
   String? firstLastNameValidator(String? inputText, String fieldName) {
     final value = inputText?.trim() ?? '';
@@ -60,7 +63,8 @@ class UserProfileForm extends StatelessWidget {
     if (!value.containsOnlyValidCharacters) {
       return 'Allowed are letters, numbers, dashes';
     }
-    return null;
+    // Synchronous checks passed, return asynchronous check now
+    return asyncUsernameError;
   }
 
   @override

@@ -63,7 +63,6 @@ class _DashboardGateState extends State<DashboardGate> {
 
           final profile = userService.profileData;
           if (profile == null || !profile.isComplete()) {
-            if (!_redirectScheduled) {}
             _scheduleRegisterRedirect('/register');
             return const SizedBox.shrink();
           }

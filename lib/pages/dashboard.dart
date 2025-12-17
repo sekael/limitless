@@ -11,8 +11,8 @@ import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.da
 import 'package:limitless_flutter/pages/user_profile.dart';
 import 'package:provider/provider.dart';
 
-// TODO: implement display of public cookies in dashboard (feed)
 // TODO: edit/delete existing cookies
+// TODO: implement display of public cookies in dashboard (feed)
 // TODO: enforce username uniqueness
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

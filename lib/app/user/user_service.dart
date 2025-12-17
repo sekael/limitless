@@ -44,6 +44,10 @@ class UserService extends ChangeNotifier {
     return profileData!;
   }
 
+  Future<bool> isUsernameTaken(String username) {
+    return _userProfileRepository.isUsernameTaken(username);
+  }
+
   // Reload profile of current user from database
   Future<void> refreshProfile() async {
     User user;

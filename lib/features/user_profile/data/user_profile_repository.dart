@@ -6,4 +6,6 @@ abstract class UserProfileRepository {
   Future<void> updateMyUser(UserProfileData updatedUser);
 
   Future<void> upsertMyUser(UserProfileData updatedUser);
+
+  Future<bool> isUsernameTaken(String username);
 }
