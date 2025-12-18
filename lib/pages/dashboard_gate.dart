@@ -52,8 +52,13 @@ class _DashboardGateState extends State<DashboardGate> {
           final userService = context.watch<UserService>();
 
           if (userService.profileData == null && !userService.loadingProfile) {
+            logger.i('User profile not available yet, scheduling refresh');
             _scheduleProfileRefresh();
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator.adaptive()),
+            );
           }
+
           // Wait until latest profile data is completely fetched
           if (userService.loadingProfile || userService.signingOut) {
             return Scaffold(
@@ -63,6 +68,9 @@ class _DashboardGateState extends State<DashboardGate> {
 
           final profile = userService.profileData;
           if (profile == null || !profile.isComplete()) {
+            logger.i(
+              'Incomplete profile data, scheduling redirect to registration page',
+            );
             _scheduleRegisterRedirect('/register');
             return const SizedBox.shrink();
           }
