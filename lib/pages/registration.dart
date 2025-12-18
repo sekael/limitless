@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
-import 'package:limitless_flutter/components/forms/validators.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
@@ -29,12 +28,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   DateTime? _dob;
   String? _countryCode;
   String? _countryName;
+  String? _currentUsername;
   bool _submitting = false;
   bool _prefilledFromService = false;
-
-  Timer? _debounce;
-  String? _usernameAsyncError;
-  String? _currentUsername;
 
   @override
   void initState() {
@@ -43,8 +39,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _usernameCtrl = TextEditingController();
     _firstNameCtrl = TextEditingController();
     _lastNameCtrl = TextEditingController();
-
-    _usernameCtrl.addListener(_onUsernameChanged);
   }
 
   @override
@@ -79,48 +73,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   void dispose() {
-    _debounce?.cancel();
-    _usernameCtrl.removeListener(_onUsernameChanged);
-
     _usernameCtrl.dispose();
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
 
     super.dispose();
-  }
-
-  void _onUsernameChanged() {
-    if (_usernameAsyncError != null) {
-      setState(() => _usernameAsyncError = null);
-    }
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
-      final enteredUsername = _usernameCtrl.text.trim();
-
-      // Basic sanity checks to avoid unnecessary API calls
-      if (enteredUsername.isEmpty || enteredUsername == _currentUsername) {
-        return;
-      }
-      if (enteredUsername.length < 6 ||
-          enteredUsername.length > 50 ||
-          !enteredUsername.containsOnlyValidCharacters) {
-        return;
-      }
-
-      final isTaken = await context.read<UserService>().isUsernameTaken(
-        enteredUsername,
-      );
-      if (!mounted) return;
-
-      if (isTaken) {
-        setState(() {
-          _usernameAsyncError = 'This username is already taken';
-        });
-        // Trigger the form to visually show the error
-        _formKey.currentState?.validate();
-      }
-    });
   }
 
   Future<void> _submit() async {
@@ -201,7 +158,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           _countryName = country.name;
                         });
                       },
-                      asyncUsernameError: _usernameAsyncError,
+                      currentUsername: _currentUsername,
                     ),
                     const SizedBox(height: 16),
                     Column(

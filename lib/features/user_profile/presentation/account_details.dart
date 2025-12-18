@@ -192,6 +192,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                       _countryName = c.name;
                     }),
                   },
+                  currentUsername: currentUser.username,
                 ),
               ),
               const SizedBox(height: 16),

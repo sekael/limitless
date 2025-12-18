@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 
 // TODO: edit/delete existing cookies
 // TODO: implement display of public cookies in dashboard (feed)
-// TODO: enforce username uniqueness
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
