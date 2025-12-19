@@ -11,6 +11,34 @@ import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.d
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
 import 'package:provider/provider.dart';
 
+class EatCookieButton extends StatelessWidget {
+  const EatCookieButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final _ = context.watch<CookieService>();
+
+    return AdaptiveGlassButton.async(
+      buttonText: 'Eat a Cookie',
+      showSpinner: false,
+      onPressed: () async {
+        final cookie = await _eatCookie(context);
+        if (!context.mounted) return;
+        unawaited(
+          showAdaptiveDialogOrPage(
+            context,
+            cookie == null
+                ? _EmptyJar(message: 'Bake a cookie today!')
+                : _CookieView(cookie: cookie),
+            null,
+          ),
+        );
+      },
+      leadingIcon: const TextIcon(icon: '🍪', semanticLabel: 'Cookie'),
+    );
+  }
+}
+
 Future<Cookie?> _eatCookie(BuildContext context) async {
   try {
     return await context.read<CookieService>().next();
@@ -85,37 +113,6 @@ class _EmptyJar extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class EatCookieButton extends StatelessWidget {
-  const EatCookieButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final _ = context.watch<CookieService>();
-
-    return AdaptiveGlassButton.async(
-      buttonText: 'Eat a Cookie',
-      showSpinner: false,
-      onPressed: () async {
-        final cookie = await _eatCookie(context);
-        if (!context.mounted) return;
-        if (cookie == null) {
-          unawaited(
-            showAdaptiveCookieReveal(
-              context,
-              _EmptyJar(message: 'Bake a cookie today!'),
-            ),
-          );
-          return;
-        }
-        unawaited(
-          showAdaptiveCookieReveal(context, _CookieView(cookie: cookie)),
-        );
-      },
-      leadingIcon: const TextIcon(icon: '🍪', semanticLabel: 'Cookie'),
     );
   }
 }

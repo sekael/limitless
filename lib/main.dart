@@ -48,10 +48,12 @@ void main() async {
               UserService(userProfileRepository: UserProfileRepositoryAdapter())
                 ..init(),
         ),
+        // CookieService depends on the user being logged in (hence the proxy provider with Session)
         ChangeNotifierProxyProvider<Session?, CookieService>(
           create: (context) =>
               CookieService(repository: context.read<CookieRepository>()),
           update: (context, session, cookieService) {
+            // If cookieService is currently null, initialize it with CookieRepository
             cookieService ??= CookieService(
               repository: context.read<CookieRepository>(),
             );

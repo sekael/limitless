@@ -3,12 +3,36 @@ import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
-import 'package:limitless_flutter/config/constants.dart';
 import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+class AddCookieButton extends StatelessWidget {
+  const AddCookieButton({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final collection = context.read<CookieService>();
+
+    return AdaptiveGlassButton.sync(
+      buttonText: 'Bake a Cookie',
+      onPressed: () => showAdaptiveDialogOrPage(
+        context,
+        ChangeNotifierProvider.value(
+          value: collection,
+          child: _AddCookieView(rootContext: context),
+        ),
+        ChangeNotifierProvider.value(
+          value: collection,
+          child: AddCookiePage(rootContext: context),
+        ),
+      ),
+      leadingIcon: const TextIcon(icon: '👩🏼‍🍳', semanticLabel: 'Baker'),
+    );
+  }
+}
 
 class _AddCookieView extends StatefulWidget {
   const _AddCookieView({required this.rootContext});
@@ -202,61 +226,6 @@ class AddCookiePage extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-Future<void> showAdaptiveAddCookiePage(BuildContext context) async {
-  final collection = context.read<CookieService>();
-  final size = MediaQuery.sizeOf(context);
-  final isWide = size.width >= SMALL_SCREEN_THRESHOLD;
-
-  Widget content = ChangeNotifierProvider.value(
-    value: collection,
-    child: _AddCookieView(rootContext: context),
-  );
-
-  if (isWide) {
-    await showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: SMALL_SCREEN_THRESHOLD,
-            maxWidth: SMALL_SCREEN_MAX_WIDTH,
-          ),
-          child: Padding(padding: const EdgeInsets.all(24), child: content),
-        ),
-      ),
-    );
-  } else {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (pageContext) {
-          return ChangeNotifierProvider.value(
-            value: collection,
-            child: AddCookiePage(rootContext: context),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class AddCookieButton extends StatelessWidget {
-  const AddCookieButton({super.key});
-  @override
-  Widget build(BuildContext context) {
-    // Uncomment this to enforce a rebuild of the button if the collection changes
-    // final _ = context.watch<CookieCollection>();
-
-    return AdaptiveGlassButton.sync(
-      buttonText: 'Bake a Cookie',
-      onPressed: () => showAdaptiveAddCookiePage(context),
-      leadingIcon: const TextIcon(icon: '👩🏼‍🍳', semanticLabel: 'Baker'),
     );
   }
 }
