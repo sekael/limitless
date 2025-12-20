@@ -23,12 +23,11 @@ class _DashboardGateState extends State<DashboardGate> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      _refreshScheduled = false;
       await context.read<UserService>().refreshProfile();
     });
   }
 
-  void _scheduleRegisterRedirect(String routeName) {
+  void _scheduleRegisterRedirect() {
     if (_redirectScheduled) return;
     _redirectScheduled = true;
 
@@ -42,6 +41,7 @@ class _DashboardGateState extends State<DashboardGate> {
 
   @override
   Widget build(BuildContext context) {
+    final userService = context.watch<UserService>();
     return RequireSessionGate(
       redirectRoute: '/',
       showLoginErrorWhenNotAuthenticated: true,
@@ -49,9 +49,9 @@ class _DashboardGateState extends State<DashboardGate> {
           'Sorry, we could not log you in correctly. Please try again.',
       child: Builder(
         builder: (context) {
-          final userService = context.watch<UserService>();
-
-          if (userService.profileData == null && !userService.loadingProfile) {
+          if (userService.profileData == null &&
+              !_refreshScheduled &&
+              !userService.loadingProfile) {
             logger.i('User profile not available yet, scheduling refresh');
             _scheduleProfileRefresh();
             return Scaffold(
@@ -71,7 +71,7 @@ class _DashboardGateState extends State<DashboardGate> {
             logger.i(
               'Incomplete profile data, scheduling redirect to registration page',
             );
-            _scheduleRegisterRedirect('/register');
+            _scheduleRegisterRedirect();
             return const SizedBox.shrink();
           }
 
