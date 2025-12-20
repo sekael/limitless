@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
+import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
@@ -177,18 +178,20 @@ class _AddCookieViewState extends State<_AddCookieView> {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: _submitting ? null : () => Navigator.of(context).pop(),
-              child: const Text('Not Baking Today'),
-            ),
-            AdaptiveGlassButton.async(
-              buttonText: 'Bake the Cookie',
-              onPressed: _submit,
-            ),
-          ],
+        SizedBox(
+          width: 200,
+          child: AdaptiveGlassButton.async(
+            buttonText: 'Bake the Cookie',
+            onPressed: _submit,
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: AdaptiveGlassButton.sync(
+            onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+            buttonText: 'Not Baking Today',
+            intent: GlassButtonIntent.secondary,
+          ),
         ),
       ],
     );

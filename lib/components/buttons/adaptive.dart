@@ -51,7 +51,7 @@ class AdaptiveGlassButton extends StatefulWidget {
   factory AdaptiveGlassButton.sync({
     Key? key,
     required String buttonText,
-    required VoidCallback onPressed,
+    required void Function()? onPressed,
     GlassButtonIntent intent = GlassButtonIntent.primary,
     bool compact = true,
     Widget? leadingIcon,
@@ -61,7 +61,7 @@ class AdaptiveGlassButton extends StatefulWidget {
       buttonText: buttonText,
       showSpinner: false,
       // Wrap VoidCallBack into a Future
-      onPressedAsync: () async => onPressed(),
+      onPressedAsync: onPressed != null ? () async => onPressed() : null,
       intent: intent,
       compact: compact,
       leadingIcon: leadingIcon,

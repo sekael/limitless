@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
+import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
@@ -27,10 +28,10 @@ class EatCookieButton extends StatelessWidget {
         unawaited(
           showAdaptiveDialogOrPage(
             context,
+            cookie == null ? _EmptyJar() : CookieCard(cookie: cookie),
             cookie == null
-                ? _EmptyJar(message: 'Bake a cookie today!')
-                : _CookieView(cookie: cookie),
-            null,
+                ? _EmptyJarPageView()
+                : _CookiePageView(cookie: cookie),
           ),
         );
       },
@@ -52,24 +53,10 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
   return null;
 }
 
-class _CookieView extends StatelessWidget {
-  const _CookieView({required this.cookie});
-
-  final Cookie cookie;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [CookieCard(cookie: cookie)],
-    );
-  }
-}
-
 class _EmptyJar extends StatelessWidget {
-  const _EmptyJar({required this.message});
+  const _EmptyJar();
 
-  final String message;
+  final String message = 'Bake a cookie today!';
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +90,8 @@ class _EmptyJar extends StatelessWidget {
               AddCookieButton(),
               AdaptiveGlassButton.sync(
                 buttonText: 'Not Baking Today',
-                onPressed: () => Navigator.of(context).maybePop(),
+                onPressed: () => Navigator.of(context).pop(),
+                intent: GlassButtonIntent.secondary,
                 leadingIcon: const TextIcon(
                   icon: '️🧘🏽‍♀️',
                   semanticLabel: 'Relax',
@@ -113,6 +101,55 @@ class _EmptyJar extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _EmptyJarPageView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Cookie Jar'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SafeArea(child: Center(child: _EmptyJar())),
+    );
+  }
+}
+
+class _CookiePageView extends StatelessWidget {
+  final Cookie cookie;
+
+  const _CookiePageView({required this.cookie});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Cookie Jar'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                16,
+                20,
+                MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: CookieCard(cookie: cookie),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

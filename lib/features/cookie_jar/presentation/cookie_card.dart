@@ -14,6 +14,7 @@ class CookieCard extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const TextIcon(icon: '🍪', semanticLabel: 'Cookie', fontSize: 32),
         const SizedBox(height: 12),
@@ -55,6 +56,16 @@ class CookieCard extends StatelessWidget {
                 leadingIcon: Icon(Icons.delete_forever_outlined),
                 onPressed: () {},
                 intent: GlassButtonIntent.secondary,
+              ),
+            ),
+            SizedBox(
+              width: 200,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close Cookie'),
+                ),
               ),
             ),
           ],
