@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
+import 'package:limitless_flutter/components/adaptive_display.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/buttons/glass_button.dart';
-import 'package:limitless_flutter/config/constants.dart';
 import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
 import 'package:limitless_flutter/features/user_profile/presentation/account_details.dart';
 import 'package:provider/provider.dart';
@@ -12,58 +12,21 @@ class MyProfileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveGlassButton.sync(
-      buttonText: 'My Profile',
-      intent: GlassButtonIntent.secondary,
-      onPressed: () => showAdaptiveUserProfilePage(context),
-    );
-  }
-}
-
-Future<void> showAdaptiveUserProfilePage(BuildContext context) async {
-  final isWide = MediaQuery.sizeOf(context).width > SMALL_SCREEN_THRESHOLD;
-
-  if (isWide) {
-    await showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => const UserDialog(),
-    );
-  } else {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) {
-          return const UserProfilePage();
-        },
-      ),
-    );
-  }
-}
-
-class UserDialog extends StatelessWidget {
-  const UserDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
     final userService = context.watch<UserService>();
     final user = userService.profileData;
 
-    return Dialog(
-      insetPadding: EdgeInsets.all(20),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: SMALL_SCREEN_THRESHOLD,
-          maxWidth: SMALL_SCREEN_MAX_WIDTH,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: user == null
-              ? SizedBox(
-                  height: 160,
-                  child: Center(child: CircularProgressIndicator.adaptive()),
-                )
-              : _ProfileContent(currentUser: user),
-        ),
+    return AdaptiveGlassButton.sync(
+      buttonText: 'My Profile',
+      intent: GlassButtonIntent.secondary,
+      onPressed: () => showAdaptiveDialogOrPage(
+        context,
+        user == null
+            ? SizedBox(
+                height: 160,
+                child: Center(child: CircularProgressIndicator.adaptive()),
+              )
+            : ProfileContent(currentUser: user),
+        UserProfilePage(),
       ),
     );
   }
@@ -88,7 +51,7 @@ class UserProfilePage extends StatelessWidget {
                   final bottomInset = MediaQuery.of(context).viewInsets.bottom;
                   return SingleChildScrollView(
                     padding: EdgeInsets.fromLTRB(20, 16, 20, bottomInset + 16),
-                    child: _ProfileContent(currentUser: user),
+                    child: ProfileContent(currentUser: user),
                   );
                 },
               ),
@@ -97,8 +60,8 @@ class UserProfilePage extends StatelessWidget {
   }
 }
 
-class _ProfileContent extends StatelessWidget {
-  const _ProfileContent({required this.currentUser});
+class ProfileContent extends StatelessWidget {
+  const ProfileContent({super.key, required this.currentUser});
 
   final UserProfileData currentUser;
 

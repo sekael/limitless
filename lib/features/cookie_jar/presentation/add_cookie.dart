@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/adaptive_display.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
-import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
-import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
-import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_edit_form.dart';
+import 'package:limitless_flutter/main.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -46,57 +47,52 @@ class _AddCookieView extends StatefulWidget {
 
 class _AddCookieViewState extends State<_AddCookieView> {
   final _formKey = GlobalKey<FormState>();
-  final _controller = TextEditingController();
+  late final TextEditingController _cookieContentCtrl;
+  late bool _isPublic;
+
   bool _submitting = false;
-  bool _isPublic = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _cookieContentCtrl = TextEditingController();
+    _isPublic = false;
+  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _cookieContentCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (_submitting) return;
-    final form = _formKey.currentState;
-    if (form == null || !form.validate()) return;
-
-    final messenger = ScaffoldMessenger.of(widget.rootContext);
-
-    User user;
-    try {
-      user = getCurrentUser();
-    } on UnauthenticatedUserException catch (_) {
-      messenger.showSnackBar(
-        ErrorSnackbar(
-          message: 'You must be logged in to add a cookie.',
-        ).build(),
-      );
+    if (!_formKey.currentState!.validate()) {
+      logger.w('Form is currently not valid');
       return;
     }
 
     setState(() => _submitting = true);
-    final text = _controller.text.trim();
+    final text = _cookieContentCtrl.text.trim();
     try {
-      await context.read<CookieService>().addNewCookie(
-        user.id,
-        text,
-        _isPublic,
+      final userId = getCurrentUser().id;
+      logger.i('Adding new cookie for user $userId');
+      await context.read<CookieService>().addNewCookie(userId, text, _isPublic);
+      logger.i('Successfully added new cookie for user $userId');
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      rootMessengerKey.currentState?.showSnackBar(
+        const SnackBar(content: Text('Awesome, you baked a new cookie!')),
       );
-      if (Navigator.of(context).mounted) Navigator.of(context).pop();
-      if (context.mounted) {
-        messenger.showSnackBar(
-          const SnackBar(content: Text('Awesome, you baked a new cookie!')),
-        );
-      }
     } on PostgrestException catch (e) {
       setState(() => _submitting = false);
-      messenger.showSnackBar(
+      rootMessengerKey.currentState?.showSnackBar(
         ErrorSnackbar(message: 'Failed to add cookie: ${e.message}').build(),
       );
     } catch (_) {
       setState(() => _submitting = false);
-      messenger.showSnackBar(
+      rootMessengerKey.currentState?.showSnackBar(
         ErrorSnackbar(message: 'Something went wrong.').build(),
       );
     }
@@ -104,78 +100,20 @@ class _AddCookieViewState extends State<_AddCookieView> {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const TextIcon(
-          icon: '👩🏼‍🍳',
-          semanticLabel: 'Bake Cookie',
-          fontSize: 32,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Bake a cookie!',
-          style: t.titleLarge!.copyWith(
-            color: Theme.of(context).colorScheme.inversePrimary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        CenterAlignedBodyText(
-          bodyText:
-              'What is something you are proud of or a moment you thoroughly cherish?',
-        ),
-        const SizedBox(height: 16),
         Form(
           key: _formKey,
-          child: TextFormField(
-            controller: _controller,
-            autofocus: true,
-            minLines: 3,
-            maxLines: 5,
-            style: t.bodyMedium!.copyWith(
-              color: Theme.of(context).colorScheme.inverseSurface,
-            ),
-            maxLength: 280,
-            textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              labelText: 'Your accomplishment',
-              hintText: 'Helped a friend with some really helpful advice!',
-              border: OutlineInputBorder(),
-            ),
-            validator: (v) {
-              final s = v?.trim() ?? '';
-              if (s.isEmpty) return 'Please write about something you enjoyed';
-              if (s.length < 3) return 'That seems a little short';
-              return null;
+          child: CookieEditForm(
+            contentController: _cookieContentCtrl,
+            isPublic: _isPublic,
+            onIsPublicChanged: (value) {
+              if (_submitting) return;
+              setState(() => _isPublic = value ?? false);
             },
-            onFieldSubmitted: (_) => _submit(),
           ),
-        ),
-        Row(
-          children: [
-            Tooltip(
-              message:
-                  'By sharing this accomplishment with others it becomes public and visible for other users on Limitless',
-              waitDuration: Duration(milliseconds: 750),
-              child: Checkbox(
-                value: _isPublic,
-                onChanged: (value) {
-                  setState(() {
-                    _isPublic = value ?? false;
-                  });
-                },
-              ),
-            ),
-            Text(
-              'Share this accomplishment with others',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.inverseSurface,
-              ),
-            ),
-          ],
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -219,7 +157,8 @@ class AddCookiePage extends StatelessWidget {
                 20,
                 16,
                 20,
-                MediaQuery.of(context).viewInsets.bottom + 16,
+                16,
+                // MediaQuery.of(context).viewInsets.bottom + 16, -> apparently not necessary because of resizeToAvoidBottomInset = true
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),

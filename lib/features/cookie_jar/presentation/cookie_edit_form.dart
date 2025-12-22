@@ -7,22 +7,22 @@ typedef CookieSubmit = Future<void> Function(String content, bool isPublic);
 class CookieEditForm extends StatefulWidget {
   const CookieEditForm({
     super.key,
-    required this.title,
-    required this.subtitle,
-    required this.submitLabel,
-    required this.initialText,
-    required this.initialIsPublic,
-    this.icon,
-    this.semanticLabel,
+    required this.contentController,
+    required this.isPublic,
+    required this.onIsPublicChanged,
+    this.title = 'Bake a Cookie!',
+    this.subtitle =
+        'What is something you are proud of or a moment you thoroughly cherish?',
+    this.icon = '👩🏼‍🍳',
+    this.semanticLabel = 'Bake Cookie',
   });
+
+  final TextEditingController contentController;
+  final bool isPublic;
+  final ValueChanged<bool?> onIsPublicChanged;
 
   final String title;
   final String subtitle;
-  final String submitLabel;
-
-  final String? initialText;
-  final bool initialIsPublic;
-
   final String? icon;
   final String? semanticLabel;
 
@@ -31,24 +31,6 @@ class CookieEditForm extends StatefulWidget {
 }
 
 class _CookieEditFormState extends State<CookieEditForm> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _contentController;
-  late bool _isPublic;
-  final bool _submitting = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _contentController = TextEditingController(text: widget.initialText ?? '');
-    _isPublic = widget.initialIsPublic;
-  }
-
-  @override
-  void dispose() {
-    _contentController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -77,9 +59,8 @@ class _CookieEditFormState extends State<CookieEditForm> {
         CenterAlignedBodyText(bodyText: widget.subtitle),
         const SizedBox(height: 16),
         Form(
-          key: _formKey,
           child: TextFormField(
-            controller: _contentController,
+            controller: widget.contentController,
             autofocus: true,
             minLines: 3,
             maxLines: 5,
@@ -108,10 +89,8 @@ class _CookieEditFormState extends State<CookieEditForm> {
                   'By sharing this accomplishment with others it becomes public and visible for other users on Limitless',
               waitDuration: const Duration(milliseconds: 750),
               child: Checkbox(
-                value: _isPublic,
-                onChanged: _submitting
-                    ? null
-                    : (value) => setState(() => _isPublic = value ?? false),
+                value: widget.isPublic,
+                onChanged: widget.onIsPublicChanged,
               ),
             ),
             Expanded(

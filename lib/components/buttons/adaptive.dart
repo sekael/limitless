@@ -24,7 +24,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     this.loadingText,
     this.compact = true,
     this.leadingIcon,
-  }) : assert(onPressedAsync != null, 'Use .sync or .async factories.');
+  });
 
   factory AdaptiveGlassButton.async({
     Key? key,
@@ -80,7 +80,12 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
 
   Future<void> _handlePress() async {
     if (_loading || widget.onPressedAsync == null) return;
-    setState(() => _loading = true);
+
+    // Don't trigger rebuild if not showing a spinner
+    if (widget.showSpinner) {
+      setState(() => _loading = true);
+    }
+
     try {
       await widget.onPressedAsync!.call();
     } finally {

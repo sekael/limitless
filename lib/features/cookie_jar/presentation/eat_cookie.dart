@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:limitless_flutter/components/adaptive_display.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
@@ -9,7 +10,6 @@ import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
-import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_dialog.dart';
 import 'package:provider/provider.dart';
 
 class EatCookieButton extends StatelessWidget {
@@ -51,6 +51,45 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
     );
   }
   return null;
+}
+
+class _CookiePageView extends StatelessWidget {
+  final Cookie cookie;
+
+  const _CookiePageView({required this.cookie});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Cookie Jar'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SizedBox(
+              width: constraints.maxWidth,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  16,
+                  20,
+                  16,
+                  // MediaQuery.of(context).viewInsets.bottom + 16, -> apparently not necessary because of resizeToAvoidBottomInset = true
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: CookieCard(cookie: cookie),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class _EmptyJar extends StatelessWidget {
@@ -115,41 +154,6 @@ class _EmptyJarPageView extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(child: Center(child: _EmptyJar())),
-    );
-  }
-}
-
-class _CookiePageView extends StatelessWidget {
-  final Cookie cookie;
-
-  const _CookiePageView({required this.cookie});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: const Text('Cookie Jar'),
-        automaticallyImplyLeading: false,
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                16,
-                20,
-                MediaQuery.of(context).viewInsets.bottom + 16,
-              ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: CookieCard(cookie: cookie),
-              ),
-            );
-          },
-        ),
-      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
+import 'package:limitless_flutter/components/adaptive_display.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/text/body.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
@@ -61,7 +62,11 @@ class _DashboardPageState extends State<DashboardPage> {
       endDrawer: isWide
           ? null
           : _DashboardMenuDrawer(
-              onMyProfile: () => showAdaptiveUserProfilePage(context),
+              onMyProfile: () => showAdaptiveDialogOrPage(
+                context,
+                ProfileContent(currentUser: userProfile),
+                UserProfilePage(),
+              ),
               onLogout: () async {
                 userService.signingOut
                     ? null
