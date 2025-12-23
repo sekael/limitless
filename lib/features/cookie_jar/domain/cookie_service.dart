@@ -9,6 +9,7 @@ import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 
+// TODO: Debug issues with service (see logs when filling queue)
 class CookieService extends ChangeNotifier {
   CookieService({
     required this.repository,
@@ -164,6 +165,9 @@ class CookieService extends ChangeNotifier {
           userId: localUserId,
           limit: pageSize,
           before: _oldestFetched,
+        );
+        logger.i(
+          'Received cookies from repository (page size = ${page.length})',
         );
 
         if (page.isEmpty) {

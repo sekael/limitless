@@ -34,14 +34,7 @@ class EatCookieButton extends StatelessWidget {
             context,
             cookie == null
                 ? EmptyJar()
-                : CookieCard(
-                    cookie: cookie,
-                    onEditCookie: () => showAdaptiveDialogOrPage(
-                      context,
-                      _EditCookieView(existingCookie: cookie),
-                      null,
-                    ),
-                  ),
+                : CookieInteractionSession(initialCookie: cookie),
             cookie == null
                 ? EmptyJarPageView()
                 : _CookiePageView(cookie: cookie),
@@ -66,49 +59,61 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
   return null;
 }
 
-class _CookiePageView extends StatelessWidget {
-  final Cookie cookie;
+class CookieInteractionSession extends StatefulWidget {
+  const CookieInteractionSession({super.key, required this.initialCookie});
 
-  const _CookiePageView({required this.cookie});
+  final Cookie initialCookie;
+
+  @override
+  State<CookieInteractionSession> createState() =>
+      _CookieInteractionSessionState();
+}
+
+class _CookieInteractionSessionState extends State<CookieInteractionSession> {
+  late Cookie _currentCookie;
+  bool _isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentCookie = widget.initialCookie;
+  }
+
+  void _handleUpdate(Cookie newCookie) {
+    setState(() {
+      _currentCookie = newCookie;
+      _isEditing = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: const Text('Cookie Jar'),
-        automaticallyImplyLeading: false,
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SizedBox(
-              width: constraints.maxWidth,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  20,
-                  16,
-                  20,
-                  16,
-                  // MediaQuery.of(context).viewInsets.bottom + 16, -> apparently not necessary because of resizeToAvoidBottomInset = true
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: CookieCard(cookie: cookie),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+    if (_isEditing) {
+      return _EditCookieView(
+        existingCookie: _currentCookie,
+        onSaved: _handleUpdate,
+        onCancel: () => setState(() => _isEditing = false),
+      );
+    }
+    return CookieCard(
+      cookie: _currentCookie,
+      onEditCookie: () => setState(() {
+        _isEditing = true;
+      }),
     );
   }
 }
 
 class _EditCookieView extends StatefulWidget {
-  const _EditCookieView({required this.existingCookie});
+  const _EditCookieView({
+    required this.existingCookie,
+    required this.onSaved,
+    required this.onCancel,
+  });
 
   final Cookie existingCookie;
+  final ValueChanged<Cookie> onSaved; // Callback when update is successful
+  final VoidCallback onCancel;
 
   @override
   State<_EditCookieView> createState() => _EditCookieViewState();
@@ -157,14 +162,14 @@ class _EditCookieViewState extends State<_EditCookieView> {
       logger.i(
         'Updating cookie ${updatedCookie.id} for user ${updatedCookie.userId}',
       );
-      // TODO: trigger reload of current cookie
       final cookieAfterUpdate = await context
           .read<CookieService>()
           .updateCookie(updatedCookie);
       logger.i('Successfully updated cookie ${updatedCookie.id}');
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+      widget.onSaved(cookieAfterUpdate);
+
       rootMessengerKey.currentState?.showSnackBar(
         const SnackBar(content: Text('Your cookie has been updated!')),
       );
@@ -213,12 +218,51 @@ class _EditCookieViewState extends State<_EditCookieView> {
         SizedBox(
           width: 200,
           child: AdaptiveGlassButton.sync(
-            onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+            onPressed: _submitting ? null : widget.onCancel,
             buttonText: 'Cancel Update',
             intent: GlassButtonIntent.secondary,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CookiePageView extends StatelessWidget {
+  final Cookie cookie;
+
+  const _CookiePageView({required this.cookie});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Cookie Jar'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SizedBox(
+              width: constraints.maxWidth,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  16,
+                  20,
+                  16,
+                  // MediaQuery.of(context).viewInsets.bottom + 16, -> apparently not necessary because of resizeToAvoidBottomInset = true
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: CookieInteractionSession(initialCookie: cookie),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

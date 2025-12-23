@@ -33,6 +33,17 @@ class CookieCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
+          cookie.isPublic
+              ? 'This cookie is shared with other users'
+              : 'Only you can eat this cookie',
+          style: t.bodyMedium!.copyWith(
+            fontStyle: FontStyle.italic,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
           'You baked this cookie on ${_formatDate(cookie.createdAt)}',
           style: t.bodySmall!.copyWith(
             color: Theme.of(
