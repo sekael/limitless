@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/core/exceptions/cookie_not_owned.dart';
 import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 
@@ -36,10 +37,12 @@ class CookieService extends ChangeNotifier {
   Future<void> setUser(String? userId) async {
     if (_userId == userId) return;
 
+    logger.i('Setting cookie service user to $userId');
     _userId = userId;
     _rng = userId == null ? null : Random(_deriveSeed(userId));
 
     // Reset per-user state
+    logger.i('Resetting user state');
     _queue.clear();
     _shownCookies.clear();
     _oldestFetched = null;
@@ -59,6 +62,7 @@ class CookieService extends ChangeNotifier {
     if (_userId == null) return null;
 
     if (_queue.isEmpty) {
+      logger.i('Queue is currently empty, filling queue first');
       await _fillQueueUntil(lowWater);
       if (_queue.isEmpty) return null;
     }
@@ -73,6 +77,9 @@ class CookieService extends ChangeNotifier {
       unawaited(_fillQueueUntil(queueTarget));
     }
 
+    logger.i(
+      'Consumed next cookie from the queue, remaining queue contains ${_queue.length} cookies',
+    );
     return cookie;
   }
 
@@ -146,6 +153,8 @@ class CookieService extends ChangeNotifier {
     final localUserId = _userId!;
 
     _loading = true;
+    logger.i('Filling cookie service queueu to target value $target');
+
     try {
       while (_queue.length < target && _hasMore) {
         // If user changed while fetching -> stop
@@ -180,6 +189,7 @@ class CookieService extends ChangeNotifier {
         }
 
         _queue.addAll(freshCookies);
+        logger.i('Added ${freshCookies.length} cookies to queue');
       }
     } finally {
       _loading = false;

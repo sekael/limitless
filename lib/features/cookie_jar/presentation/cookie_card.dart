@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
+import 'package:limitless_flutter/main.dart';
+import 'package:provider/provider.dart';
 
 class CookieCard extends StatelessWidget {
-  const CookieCard({super.key, required this.cookie});
+  const CookieCard({super.key, required this.cookie, this.onEditCookie});
 
   final Cookie cookie;
+  final Function()? onEditCookie;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +51,7 @@ class CookieCard extends StatelessWidget {
               child: AdaptiveGlassButton.sync(
                 buttonText: 'Edit this Cookie',
                 leadingIcon: Icon(Icons.edit),
-                onPressed: () {},
+                onPressed: onEditCookie,
               ),
             ),
             SizedBox(
@@ -54,7 +59,7 @@ class CookieCard extends StatelessWidget {
               child: AdaptiveGlassButton.sync(
                 buttonText: 'Delete this Cookie',
                 leadingIcon: Icon(Icons.delete_forever_outlined),
-                onPressed: () {},
+                onPressed: () => _deleteCurrentCookie(context),
                 intent: GlassButtonIntent.secondary,
               ),
             ),
@@ -72,6 +77,19 @@ class CookieCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _deleteCurrentCookie(BuildContext context) async {
+    try {
+      logger.i('Deleting current cookie with id ${cookie.id}');
+      await context.read<CookieService>().deleteCookie(cookie);
+    } finally {
+      logger.i('Successfully deleted cookie');
+      rootMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text('Your cookie was successfully deleted.')),
+      );
+      rootNavigatorKey.currentState?.pop();
+    }
   }
 
   static String _formatDate(DateTime dt) =>

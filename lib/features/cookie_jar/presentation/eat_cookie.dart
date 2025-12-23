@@ -6,11 +6,15 @@ import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
-import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_card.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/cookie_edit_form.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/empty_jar.dart';
+import 'package:limitless_flutter/main.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EatCookieButton extends StatelessWidget {
   const EatCookieButton({super.key});
@@ -28,9 +32,18 @@ class EatCookieButton extends StatelessWidget {
         unawaited(
           showAdaptiveDialogOrPage(
             context,
-            cookie == null ? _EmptyJar() : CookieCard(cookie: cookie),
             cookie == null
-                ? _EmptyJarPageView()
+                ? EmptyJar()
+                : CookieCard(
+                    cookie: cookie,
+                    onEditCookie: () => showAdaptiveDialogOrPage(
+                      context,
+                      _EditCookieView(existingCookie: cookie),
+                      null,
+                    ),
+                  ),
+            cookie == null
+                ? EmptyJarPageView()
                 : _CookiePageView(cookie: cookie),
           ),
         );
@@ -92,68 +105,120 @@ class _CookiePageView extends StatelessWidget {
   }
 }
 
-class _EmptyJar extends StatelessWidget {
-  const _EmptyJar();
+class _EditCookieView extends StatefulWidget {
+  const _EditCookieView({required this.existingCookie});
 
-  final String message = 'Bake a cookie today!';
+  final Cookie existingCookie;
+
+  @override
+  State<_EditCookieView> createState() => _EditCookieViewState();
+}
+
+class _EditCookieViewState extends State<_EditCookieView> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _cookieContentCtrl;
+  late bool _isPublic;
+
+  bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _cookieContentCtrl = TextEditingController(
+      text: widget.existingCookie.content,
+    );
+    _isPublic = widget.existingCookie.isPublic;
+  }
+
+  @override
+  void dispose() {
+    _cookieContentCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _updateCookie() async {
+    if (_submitting) return;
+    if (!_formKey.currentState!.validate()) {
+      logger.w('Form is currently not valid');
+      return;
+    }
+
+    setState(() => _submitting = true);
+
+    final updatedCookie = Cookie(
+      id: widget.existingCookie.id,
+      userId: widget.existingCookie.userId,
+      content: _cookieContentCtrl.text.trim(),
+      createdAt: widget.existingCookie.createdAt,
+      isPublic: _isPublic,
+    );
+
+    try {
+      logger.i(
+        'Updating cookie ${updatedCookie.id} for user ${updatedCookie.userId}',
+      );
+      // TODO: trigger reload of current cookie
+      final cookieAfterUpdate = await context
+          .read<CookieService>()
+          .updateCookie(updatedCookie);
+      logger.i('Successfully updated cookie ${updatedCookie.id}');
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      rootMessengerKey.currentState?.showSnackBar(
+        const SnackBar(content: Text('Your cookie has been updated!')),
+      );
+    } on PostgrestException catch (e) {
+      setState(() => _submitting = false);
+      rootMessengerKey.currentState?.showSnackBar(
+        ErrorSnackbar(message: 'Failed to edit cookie: ${e.message}').build(),
+      );
+    } catch (_) {
+      setState(() => _submitting = false);
+      rootMessengerKey.currentState?.showSnackBar(
+        ErrorSnackbar(
+          message: 'Something went wrong editing your cookie',
+        ).build(),
+      );
+    } finally {
+      setState(() => _submitting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const TextIcon(icon: '🫙', semanticLabel: 'Empty Jar', fontSize: 32),
-        const SizedBox(height: 12),
-        Text(
-          'Your cookie jar is empty',
-          style: t.titleLarge!.copyWith(
-            color: Theme.of(context).colorScheme.inversePrimary,
+        Form(
+          key: _formKey,
+          child: CookieEditForm(
+            contentController: _cookieContentCtrl,
+            isPublic: _isPublic,
+            onIsPublicChanged: (value) {
+              if (_submitting) return;
+              setState(() => _isPublic = value ?? false);
+            },
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          message,
-          style: t.bodyMedium!.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
-        IntrinsicWidth(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AddCookieButton(),
-              AdaptiveGlassButton.sync(
-                buttonText: 'Not Baking Today',
-                onPressed: () => Navigator.of(context).pop(),
-                intent: GlassButtonIntent.secondary,
-                leadingIcon: const TextIcon(
-                  icon: '️🧘🏽‍♀️',
-                  semanticLabel: 'Relax',
-                ),
-              ),
-            ],
+        SizedBox(
+          width: 200,
+          child: AdaptiveGlassButton.async(
+            buttonText: 'Update Cookie',
+            onPressed: _updateCookie,
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: AdaptiveGlassButton.sync(
+            onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+            buttonText: 'Cancel Update',
+            intent: GlassButtonIntent.secondary,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _EmptyJarPageView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: const Text('Cookie Jar'),
-        automaticallyImplyLeading: false,
-      ),
-      body: SafeArea(child: Center(child: _EmptyJar())),
     );
   }
 }
