@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
-import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
-import 'package:limitless_flutter/features/cookie_jar/domain/cookie_collection.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
+import 'package:limitless_flutter/core/require_session.dart';
+import 'package:limitless_flutter/main.dart';
 import 'package:limitless_flutter/pages/dashboard.dart';
-import 'package:limitless_flutter/pages/registration.dart';
 import 'package:provider/provider.dart';
 
 class DashboardGate extends StatefulWidget {
@@ -14,54 +14,72 @@ class DashboardGate extends StatefulWidget {
 }
 
 class _DashboardGateState extends State<DashboardGate> {
-  bool _requestedProfile = false;
+  bool _redirectScheduled = false;
+  bool _refreshScheduled = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void _scheduleProfileRefresh() {
+    if (_refreshScheduled) return;
+    _refreshScheduled = true;
 
-    if (!_requestedProfile) {
-      _requestedProfile = true;
-      final userService = context.read<UserService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await context.read<UserService>().refreshProfile();
+    });
+  }
 
-      if (userService.isLoggedIn && userService.profileData == null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          userService.refreshProfile();
-        });
-      }
-    }
+  void _scheduleRegisterRedirect() {
+    if (_redirectScheduled) return;
+    _redirectScheduled = true;
+
+    logger.i('Scheduling redirect to registration page');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final navigator = rootNavigatorKey.currentState;
+      if (navigator == null) return;
+      navigator.pushReplacementNamed('/register');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final userService = context.watch<UserService>();
-    final profile = userService.profileData;
+    return RequireSessionGate(
+      redirectRoute: '/',
+      showLoginErrorWhenNotAuthenticated: true,
+      loginErrorMessage:
+          'Sorry, we could not log you in correctly. Please try again.',
+      child: Builder(
+        builder: (context) {
+          if (userService.profileData == null &&
+              !_refreshScheduled &&
+              !userService.loadingProfile) {
+            logger.i('User profile not available yet, scheduling refresh');
+            _scheduleProfileRefresh();
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator.adaptive()),
+            );
+          }
 
-    if (userService.loadingProfile || userService.signingOut) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator.adaptive()),
-      );
-    }
+          // Wait until latest profile data is completely fetched
+          if (userService.loadingProfile || userService.signingOut) {
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator.adaptive()),
+            );
+          }
 
-    if (!userService.isLoggedIn) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!context.mounted) return;
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      });
-      return const SizedBox.shrink();
-    }
+          final profile = userService.profileData;
+          if (profile == null || !profile.isComplete()) {
+            logger.i(
+              'Incomplete profile data, scheduling redirect to registration page',
+            );
+            _scheduleRegisterRedirect();
+            return const SizedBox.shrink();
+          }
 
-    if (profile == null || !profile.isComplete()) {
-      return const RegistrationPage();
-    }
-
-    return ChangeNotifierProvider(
-      create: (_) => CookieCollection(
-        repository: CookieRepositoryAdapter(),
-        userId: profile.id,
-      )..init(),
-      child: const DashboardPage(),
+          logger.i('Opening dashboard');
+          _redirectScheduled = false;
+          return const DashboardPage();
+        },
+      ),
     );
   }
 }

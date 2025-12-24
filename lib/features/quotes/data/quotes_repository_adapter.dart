@@ -1,10 +1,10 @@
+import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/domain/quote.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class QuotesRepositoryAdapter implements QuotesRepository {
-  final SupabaseClient _client;
-  QuotesRepositoryAdapter(this._client);
+  final SupabaseClient _client = getSupabaseClient();
 
   @override
   Future<List<Quote>> getAll() async {

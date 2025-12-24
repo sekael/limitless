@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
@@ -26,27 +28,46 @@ class _RegistrationPageState extends State<RegistrationPage> {
   DateTime? _dob;
   String? _countryCode;
   String? _countryName;
+  String? _currentUsername;
   bool _submitting = false;
-
-  late final UserService _userService;
+  bool _prefilledFromService = false;
 
   @override
   void initState() {
     super.initState();
 
-    _userService = context.read<UserService>();
-    final u =
-        _userService.profileData ?? UserProfileData(id: getCurrentUser().id);
+    _usernameCtrl = TextEditingController();
+    _firstNameCtrl = TextEditingController();
+    _lastNameCtrl = TextEditingController();
+  }
 
-    _usernameCtrl = TextEditingController(text: u.username ?? '');
-    _firstNameCtrl = TextEditingController(text: u.firstName ?? '');
-    _lastNameCtrl = TextEditingController(text: u.lastName ?? '');
-    _dob = u.dateOfBirth;
-    _countryCode = u.country;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-    if (_countryCode != null) {
-      final country = Country.tryParse(_countryCode!);
-      _countryName = country?.name;
+    final profile = context.watch<UserService>().profileData;
+
+    // Store current username for the user if it exists to avoid flagging it as taken
+    if (profile?.username != null) {
+      _currentUsername = profile!.username;
+    }
+
+    if (!_prefilledFromService && profile != null) {
+      _prefilledFromService = true;
+
+      _usernameCtrl.text = profile.username ?? '';
+      _firstNameCtrl.text = profile.firstName ?? '';
+      _lastNameCtrl.text = profile.lastName ?? '';
+      _dob = profile.dateOfBirth;
+      _countryCode = profile.country;
+
+      if (_countryCode != null) {
+        final country = Country.tryParse(_countryCode!);
+        _countryName = country?.name;
+      }
+
+      // Set state because we changed non-controller fields
+      setState(() {});
     }
   }
 
@@ -55,6 +76,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _usernameCtrl.dispose();
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
+
     super.dispose();
   }
 
@@ -74,7 +96,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
 
     try {
-      await _userService.saveProfileData(updatedUser, upsert: true);
+      await context.read<UserService>().saveProfileData(
+        updatedUser,
+        upsert: true,
+      );
 
       if (!mounted) return;
       // Go back through the gate – which will now show Dashboard
@@ -114,7 +139,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   children: [
                     CenterAlignedBodyText(
                       bodyText:
-                          'We would like to get to know you a little bit!\nPlease fill out the following fields.',
+                          'Tell us a little something about you!\nPlease fill out the following fields.',
                     ),
                     const SizedBox(height: 20),
                     UserProfileForm(
@@ -133,6 +158,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           _countryName = country.name;
                         });
                       },
+                      currentUsername: _currentUsername,
                     ),
                     const SizedBox(height: 16),
                     Column(
@@ -144,11 +170,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         ),
                         const SizedBox(height: 8),
                         TextButton(
-                          onPressed: () async {
-                            _submitting
-                                ? null
-                                : userService.handleSignOut(context);
-                          },
+                          onPressed: _submitting
+                              ? null
+                              : () async {
+                                  userService.handleSignOut();
+                                },
                           child: const Text('Cancel Registration'),
                         ),
                       ],

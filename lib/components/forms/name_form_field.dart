@@ -12,7 +12,7 @@ class NameFormField extends StatelessWidget {
   final TextEditingController controller;
   final String? labelText;
   final int maxInputLength;
-  final String? Function(String?)? validatorOverride;
+  final String? Function(String? value)? validatorOverride;
 
   @override
   Widget build(BuildContext context) {

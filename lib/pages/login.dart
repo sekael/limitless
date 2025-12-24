@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/title.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -45,8 +46,12 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _sendLoginCode() async {
     final String email = _emailCtrl.text.trim();
     try {
+      logger.i('Sending email containing OTP verification code');
       await sendEmailOtp(email);
       if (!mounted) return;
+      logger.i(
+        'Successfully sent email with OTP verification code, navigating to verification page',
+      );
       Navigator.of(context).pushNamed('/verify', arguments: email);
     } on AuthException catch (e) {
       if (!mounted) return;

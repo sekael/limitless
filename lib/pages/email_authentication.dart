@@ -3,6 +3,7 @@ import 'package:limitless_flutter/components/buttons/adaptive.dart';
 import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/error_snackbar.dart';
 import 'package:limitless_flutter/components/text/body.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,15 +29,19 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
     setState(() => _submitting = true);
     try {
       // Verify OTP verification code
+      logger.i('Verifying OTP code');
       final AuthResponse response = await Supabase.instance.client.auth
           .verifyOTP(
             type: OtpType.email,
             token: _verificationCodeControl.text.trim(),
             email: email,
           );
+      logger.i('Successfully verified OTP code');
+
       final session = response.session;
       if (session != null) {
         if (!mounted) return;
+        logger.i('Session is active, navigating to dashboard');
         Navigator.of(
           context,
         ).pushNamedAndRemoveUntil('/dashboard', (_) => false);
@@ -132,9 +137,10 @@ class _EmailOtpVerificationState extends State<EmailOtpVerificationPage> {
                               ),
                             )
                             .catchError(
-                              (_) => messenger.showSnackBar(
+                              (err) => messenger.showSnackBar(
                                 ErrorSnackbar(
-                                  message: 'Could not resend code',
+                                  message:
+                                      'Could not resend code because of error: $err',
                                 ).build(),
                               ),
                             );
