@@ -24,7 +24,7 @@ class AdaptiveGlassButton extends StatefulWidget {
     this.loadingText,
     this.compact = true,
     this.leadingIcon,
-  }) : assert(onPressedAsync != null, 'Use .sync or .async factories.');
+  });
 
   factory AdaptiveGlassButton.async({
     Key? key,
@@ -51,7 +51,7 @@ class AdaptiveGlassButton extends StatefulWidget {
   factory AdaptiveGlassButton.sync({
     Key? key,
     required String buttonText,
-    required VoidCallback onPressed,
+    required void Function()? onPressed,
     GlassButtonIntent intent = GlassButtonIntent.primary,
     bool compact = true,
     Widget? leadingIcon,
@@ -61,7 +61,7 @@ class AdaptiveGlassButton extends StatefulWidget {
       buttonText: buttonText,
       showSpinner: false,
       // Wrap VoidCallBack into a Future
-      onPressedAsync: () async => onPressed(),
+      onPressedAsync: onPressed != null ? () async => onPressed() : null,
       intent: intent,
       compact: compact,
       leadingIcon: leadingIcon,
@@ -80,7 +80,12 @@ class _AdaptiveGlassButtonState extends State<AdaptiveGlassButton> {
 
   Future<void> _handlePress() async {
     if (_loading || widget.onPressedAsync == null) return;
-    setState(() => _loading = true);
+
+    // Don't trigger rebuild if not showing a spinner
+    if (widget.showSpinner) {
+      setState(() => _loading = true);
+    }
+
     try {
       await widget.onPressedAsync!.call();
     } finally {

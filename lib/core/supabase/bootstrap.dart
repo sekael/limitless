@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-Future<SupabaseClient> initializeClientFromFile(String fileName) async {
+Future<void> initializeClientFromFile(String fileName) async {
   await dotenv.load(fileName: fileName);
 
   final supabaseUrl = dotenv.env['SUPABASE_URL'];
@@ -14,5 +14,4 @@ Future<SupabaseClient> initializeClientFromFile(String fileName) async {
   }
 
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
-  return Supabase.instance.client;
 }

@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
 import 'package:limitless_flutter/config/theme/theme_provider.dart';
 import 'package:limitless_flutter/core/supabase/bootstrap.dart';
+import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
+import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository.dart';
 import 'package:limitless_flutter/features/quotes/data/quotes_repository_adapter.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository_adapter.dart';
@@ -11,33 +16,50 @@ import 'package:limitless_flutter/pages/dashboard_gate.dart';
 import 'package:limitless_flutter/pages/email_authentication.dart';
 import 'package:limitless_flutter/pages/home.dart';
 import 'package:limitless_flutter/pages/login.dart';
+import 'package:limitless_flutter/pages/registration_gate.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/theme/theme.dart';
 
-// TODO: validators on profile data inputs
-// TODO: edit/delete existing cookies
-// TODO: better snackbar text after adding a cookie
-// TODO: shorter text on registration page for mobile
-// TODO: welcome banner on dashboard wording
-// TODO: enable languages DE, JP
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SupabaseClient supabase = await initializeClientFromFile('prod.env');
+  await initializeClientFromFile('prod.env');
 
   runApp(
     MultiProvider(
       providers: [
-        Provider<QuotesRepository>(
-          create: (_) => QuotesRepositoryAdapter(supabase),
+        StreamProvider<Session?>(
+          create: (_) => Supabase.instance.client.auth.onAuthStateChange.map(
+            (data) => data.session,
+          ),
+          initialData: Supabase.instance.client.auth.currentSession,
+          catchError: (context, error) => null,
         ),
+        Provider<QuotesRepository>(create: (_) => QuotesRepositoryAdapter()),
+        Provider<CookieRepository>(create: (_) => CookieRepositoryAdapter()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(
           create: (_) =>
               UserService(userProfileRepository: UserProfileRepositoryAdapter())
                 ..init(),
+        ),
+        // CookieService depends on the user being logged in (hence the proxy provider with Session)
+        ChangeNotifierProxyProvider<Session?, CookieService>(
+          create: (context) =>
+              CookieService(repository: context.read<CookieRepository>()),
+          update: (context, session, cookieService) {
+            // If cookieService is currently null, initialize it with CookieRepository
+            cookieService ??= CookieService(
+              repository: context.read<CookieRepository>(),
+            );
+            unawaited(cookieService.setUser(session?.user.id));
+            return cookieService;
+          },
         ),
       ],
       child: MainApp(),
@@ -57,6 +79,8 @@ class MainApp extends StatelessWidget {
       theme: lightMode,
       darkTheme: darkMode,
       themeMode: provider.mode,
+      navigatorKey: rootNavigatorKey,
+      scaffoldMessengerKey: rootMessengerKey,
       builder: (context, child) {
         return Stack(
           fit: StackFit.expand,
@@ -84,6 +108,11 @@ class MainApp extends StatelessWidget {
           case '/dashboard':
             return SlideRightToLeftPageRoute(
               builder: (_) => const DashboardGate(),
+              settings: settings,
+            );
+          case '/register':
+            return SlideRightToLeftPageRoute(
+              builder: (_) => const RegistrationGate(),
               settings: settings,
             );
           default:

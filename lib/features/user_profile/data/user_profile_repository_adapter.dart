@@ -53,4 +53,36 @@ class UserProfileRepositoryAdapter implements UserProfileRepository {
     }
     await _client.from(_table).upsert(updatedUser.toMap());
   }
+
+  /// Check whether a username is already taken by running an Postgres Remote Procedure Call (RPC).
+  /// This call needs to be defined using Supabase's SQL editor, and it must contain the following code:
+  /// ```sql
+  /// create or replace function is_username_taken(username_input text)
+  /// returns boolean
+  /// language plpgsql
+  /// security definer  -- allow bypassing RLS policies
+  /// as $$
+  /// begin
+  ///   return exists (
+  ///     select 1
+  ///     from user_profile
+  ///     where username = username_input
+  ///   );
+  /// end;
+  /// $$
+  /// ```
+  @override
+  Future<bool> isUsernameTaken(String username) async {
+    try {
+      // Call the function is_username_taken created through Supabase SQL editor
+      final bool taken = await _client.rpc(
+        'is_username_taken',
+        params: {'username_input': username},
+      );
+      return taken;
+    } catch (e, st) {
+      logger.e('Error checking username availability', e, st);
+      return false;
+    }
+  }
 }

@@ -6,6 +6,7 @@ import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:limitless_flutter/features/user_profile/data/user_profile_repository.dart';
 import 'package:limitless_flutter/features/user_profile/domain/user_profile_data.dart';
+import 'package:limitless_flutter/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserService extends ChangeNotifier {
@@ -43,6 +44,10 @@ class UserService extends ChangeNotifier {
     return profileData!;
   }
 
+  Future<bool> isUsernameTaken(String username) {
+    return _userProfileRepository.isUsernameTaken(username);
+  }
+
   // Reload profile of current user from database
   Future<void> refreshProfile() async {
     User user;
@@ -63,7 +68,6 @@ class UserService extends ChangeNotifier {
 
     try {
       _profileData = await _userProfileRepository.getUserById(user.id);
-      logger.i('Successfully retrieved profile data for user ${user.id}');
     } catch (error, stacktrace) {
       logger.e(
         'Failed to load user profile for user ${user.id}',
@@ -71,6 +75,7 @@ class UserService extends ChangeNotifier {
         stacktrace,
       );
     } finally {
+      logger.i('Successfully retrieved profile data for user ${user.id}');
       _loadingProfile = false;
       notifyListeners();
     }
@@ -100,14 +105,11 @@ class UserService extends ChangeNotifier {
   }
 
   // Centralized sign-out handler
-  Future<void> handleSignOut(BuildContext context) async {
+  Future<void> handleSignOut() async {
     if (_signingOut) return;
 
     _signingOut = true;
     notifyListeners();
-
-    final messenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
 
     try {
       await signOut();
@@ -115,19 +117,16 @@ class UserService extends ChangeNotifier {
       // Clear cached profile data
       _profileData = null;
       notifyListeners();
-      navigator.pushNamedAndRemoveUntil('/', (route) => false);
     } on AuthException catch (e, st) {
       logger.e('Authentication error when trying to sign out', e, st);
-      if (!context.mounted) return;
-      messenger.showSnackBar(
+      rootMessengerKey.currentState?.showSnackBar(
         ErrorSnackbar(
           message: 'An error occurred trying to sign you out',
         ).build(),
       );
     } catch (e, st) {
       logger.e('Unexpected error when trying to sign out', e, st);
-      if (!context.mounted) return;
-      messenger.showSnackBar(
+      rootMessengerKey.currentState?.showSnackBar(
         ErrorSnackbar(
           message: 'An unexpected error occurred when trying to sign you out',
         ).build(),

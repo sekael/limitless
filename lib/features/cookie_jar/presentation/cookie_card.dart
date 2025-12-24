@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:limitless_flutter/components/buttons/adaptive.dart';
+import 'package:limitless_flutter/components/buttons/glass_button.dart';
 import 'package:limitless_flutter/components/text/icon.dart';
+import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
+import 'package:limitless_flutter/main.dart';
+import 'package:provider/provider.dart';
 
 class CookieCard extends StatelessWidget {
-  const CookieCard({
-    super.key,
-    required this.cookie,
-    this.onClose,
-    this.onBake,
-  });
+  const CookieCard({super.key, required this.cookie, this.onEditCookie});
 
   final Cookie cookie;
-  final VoidCallback? onClose;
-  final VoidCallback? onBake;
+  final Function()? onEditCookie;
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const TextIcon(icon: '🍪', semanticLabel: 'Cookie', fontSize: 32),
         const SizedBox(height: 12),
@@ -33,6 +33,17 @@ class CookieCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
+          cookie.isPublic
+              ? 'This cookie is shared with other users'
+              : 'Only you can eat this cookie',
+          style: t.bodyMedium!.copyWith(
+            fontStyle: FontStyle.italic,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
           'You baked this cookie on ${_formatDate(cookie.createdAt)}',
           style: t.bodySmall!.copyWith(
             color: Theme.of(
@@ -41,26 +52,55 @@ class CookieCard extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.center,
+        const SizedBox(height: 24),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (onBake != null)
-              AdaptiveGlassButton.sync(
-                buttonText: 'Bake Another',
-                onPressed: onBake!,
+            SizedBox(
+              width: 200,
+              child: AdaptiveGlassButton.sync(
+                buttonText: 'Edit this Cookie',
+                leadingIcon: Icon(Icons.edit),
+                onPressed: onEditCookie,
               ),
-            if (onClose != null)
-              AdaptiveGlassButton.sync(
-                buttonText: 'Finish Eating',
-                onPressed: onClose!,
+            ),
+            SizedBox(
+              width: 200,
+              child: AdaptiveGlassButton.sync(
+                buttonText: 'Delete this Cookie',
+                leadingIcon: Icon(Icons.delete_forever_outlined),
+                onPressed: () => _deleteCurrentCookie(context),
+                intent: GlassButtonIntent.secondary,
               ),
+            ),
+            SizedBox(
+              width: 200,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close Cookie'),
+                ),
+              ),
+            ),
           ],
         ),
       ],
     );
+  }
+
+  Future<void> _deleteCurrentCookie(BuildContext context) async {
+    try {
+      logger.i('Deleting current cookie with id ${cookie.id}');
+      await context.read<CookieService>().deleteCookie(cookie);
+    } finally {
+      logger.i('Successfully deleted cookie');
+      rootMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text('Your cookie was successfully deleted.')),
+      );
+      rootNavigatorKey.currentState?.pop();
+    }
   }
 
   static String _formatDate(DateTime dt) =>
