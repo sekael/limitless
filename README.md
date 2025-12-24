@@ -19,23 +19,26 @@ Bake cookies of your achievements and things you are proud of, so you can come b
 
 Start page in light mode:
 
-![](docs/images/limitless-light-mode-start-page.png)
+<img src="docs/images/limitless-light-mode-start-page.png" width="800" alt="start page"/>
 
 Sign-up flow:
 
-![](docs/images/limitless-email-entry.png)
-![](docs/images/limitless-otp-verify.png)
+<img src="docs/images/limitless-email-entry.png" width="800" alt="email entry"/>  
+
+<img src="docs/images/limitless-otp-verify.png" width="800" alt="otp verify"/>
 
 Dashboard:
 
-![](docs/images/limitless-dashboard.png)
+<img src="docs/images/limitless-dashboard.png" width="800" alt="dashboard"/>
 
 Add and edit cookies:
 
-![](docs/images/limitless-cookie-display.png)
-![](docs/images/limitless-update-cookie.png)
-![](docs/images/limitless-add-cookie.png)
+<img src="docs/images/limitless-cookie-display.png" width="800" alt="cookie display"/>  
+
+<img src="docs/images/limitless-update-cookie.png" width="800" alt="update cookie"/>  
+
+<img src="docs/images/limitless-add-cookie.png" width="800" alt="add cookie"/>
 
 User Profile:
 
-![](docs/images/limitless-user-profile.png)
+<img src="docs/images/limitless-user-profile.png" width="800" alt="user profile"/>
