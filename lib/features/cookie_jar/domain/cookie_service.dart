@@ -9,11 +9,10 @@ import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
 
-// TODO: Debug issues with service (see logs when filling queue)
 class CookieService extends ChangeNotifier {
   CookieService({
     required this.repository,
-    this.pageSize = 20,
+    this.pageSize = 10,
     this.queueTarget = 10,
     this.lowWater = 3,
   });
@@ -78,9 +77,7 @@ class CookieService extends ChangeNotifier {
       unawaited(_fillQueueUntil(queueTarget));
     }
 
-    logger.i(
-      'Consumed next cookie from the queue, remaining queue contains ${_queue.length} cookies',
-    );
+    logger.i('Showed next cookie from queue (current size = ${_queue.length})');
     return cookie;
   }
 
@@ -153,26 +150,65 @@ class CookieService extends ChangeNotifier {
     final localGeneration = _generation;
     final localUserId = _userId!;
 
+    // Prevent infinite loops
+    bool justRecycled = false;
+
     _loading = true;
-    logger.i('Filling cookie service queueu to target value $target');
+    logger.i('Filling cookie service queue to target value $target');
 
     try {
-      while (_queue.length < target && _hasMore) {
+      while (_queue.length < target) {
         // If user changed while fetching -> stop
         if (localGeneration != _generation || _userId != localUserId) return;
+
+        // Recycle previously shown cookies if the user does not have any more
+        if (!_hasMore) {
+          if (_queue.isEmpty && _shownCookies.isEmpty) {
+            logger.i(
+              'Cookie jar is truly empty (no cookies available or shown), stopping to fill the queue',
+            );
+            break;
+          }
+
+          logger.i(
+            'No more cookies in repository, recycling cookies to refill the queue',
+          );
+
+          // Reset cursor
+          _oldestFetched = null;
+          _hasMore = true;
+          _shownCookies.clear();
+          justRecycled = true;
+
+          // Continue immediately to trigger refetch
+          continue;
+        }
 
         final page = await repository.fetchCookiesFromBeforeDate(
           userId: localUserId,
           limit: pageSize,
           before: _oldestFetched,
         );
-        logger.i(
-          'Received cookies from repository (page size = ${page.length})',
-        );
+
+        if (page.isEmpty && justRecycled) {
+          logger.w(
+            'Attempted recycling cookies but received no cookies from repository, stopping',
+          );
+          _hasMore = false;
+          break;
+        }
+
+        justRecycled = false;
 
         if (page.isEmpty) {
           _hasMore = false;
-          break;
+          // Continue loop and hit recycle in the next iteration
+          continue;
+        }
+
+        // If only a partial page is returned, we can stop processing after current batch
+        if (page.length < pageSize) {
+          _hasMore = false;
         }
 
         // Update retrieval index
@@ -193,8 +229,12 @@ class CookieService extends ChangeNotifier {
         }
 
         _queue.addAll(freshCookies);
-        logger.i('Added ${freshCookies.length} cookies to queue');
+        logger.i(
+          'Added ${freshCookies.length} cookies to queue (current size = ${_queue.length})',
+        );
       }
+    } catch (e, st) {
+      logger.e('Error filling the cookie queue', e, st);
     } finally {
       _loading = false;
       notifyListeners();

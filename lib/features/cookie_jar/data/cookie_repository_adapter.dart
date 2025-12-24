@@ -41,13 +41,16 @@ class CookieRepositoryAdapter implements CookieRepository {
         .from(_table)
         .select('id, user_id, content, created_at, is_public')
         .eq('user_id', userId);
+
     if (before != null) {
-      query.lt('created_at', before.toIso8601String());
+      query = query.lt('created_at', before.toIso8601String());
     }
 
-    query.order('created_at').limit(limit);
+    final orderedQuery = query
+        .order('created_at', ascending: false)
+        .limit(limit);
 
-    final rows = await query;
+    final rows = await orderedQuery;
     return rows.map(Cookie.fromMap).toList();
   }
 
