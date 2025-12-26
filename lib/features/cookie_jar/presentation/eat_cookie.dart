@@ -16,7 +16,6 @@ import 'package:limitless_flutter/main.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// TODO: overview of all cookies
 class EatCookieButton extends StatelessWidget {
   const EatCookieButton({super.key});
 
