@@ -16,6 +16,7 @@ import 'package:limitless_flutter/main.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// TODO: overview of all cookies
 class EatCookieButton extends StatelessWidget {
   const EatCookieButton({super.key});
 
@@ -60,9 +61,14 @@ Future<Cookie?> _eatCookie(BuildContext context) async {
 }
 
 class CookieInteractionSession extends StatefulWidget {
-  const CookieInteractionSession({super.key, required this.initialCookie});
+  const CookieInteractionSession({
+    super.key,
+    required this.initialCookie,
+    this.onPage = false,
+  });
 
   final Cookie initialCookie;
+  final bool onPage;
 
   @override
   State<CookieInteractionSession> createState() =>
@@ -86,6 +92,24 @@ class _CookieInteractionSessionState extends State<CookieInteractionSession> {
     });
   }
 
+  Future<void> _handleLoadNext() async {
+    try {
+      final nextCookie = await context.read<CookieService>().next();
+
+      if (!mounted) return;
+      if (nextCookie != null) {
+        setState(() {
+          _currentCookie = nextCookie;
+        });
+      }
+    } catch (e, st) {
+      logger.e('Could not load next cookie to display', e, st);
+      ScaffoldMessenger.of(context).showSnackBar(
+        ErrorSnackbar(message: 'Failed to load the next cookie.').build(),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isEditing) {
@@ -100,6 +124,8 @@ class _CookieInteractionSessionState extends State<CookieInteractionSession> {
       onEditCookie: () => setState(() {
         _isEditing = true;
       }),
+      onDisplayNext: _handleLoadNext,
+      displayClose: !widget.onPage,
     );
   }
 }
@@ -235,11 +261,24 @@ class _CookiePageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Cookie Jar'),
         automaticallyImplyLeading: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.close),
+              tooltip: 'Close',
+              splashColor: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -256,7 +295,10 @@ class _CookiePageView extends StatelessWidget {
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: CookieInteractionSession(initialCookie: cookie),
+                  child: CookieInteractionSession(
+                    initialCookie: cookie,
+                    onPage: true,
+                  ),
                 ),
               ),
             );
