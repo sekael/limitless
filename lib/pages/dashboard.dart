@@ -9,10 +9,10 @@ import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/config/constants.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/public_cookie_feed.dart';
 import 'package:limitless_flutter/pages/user_profile.dart';
 import 'package:provider/provider.dart';
 
-// TODO: implement display of public cookies in dashboard (feed)
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -94,6 +94,18 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(height: 12),
                     SizedBox(width: 250, child: EatCookieButton()),
                     SizedBox(width: 250, child: AddCookieButton()),
+                    const SizedBox(height: 32),
+                    const TitleText(titleText: 'Community Cookies'),
+                    const SizedBox(height: 8),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: SMALL_SCREEN_THRESHOLD,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: PublicCookieFeed(),
+                      ),
+                    ),
                   ],
                 ),
               ),
