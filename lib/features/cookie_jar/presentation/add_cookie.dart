@@ -12,7 +12,6 @@ import 'package:limitless_flutter/main.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// TODO: allow adding and editing images (JPG, PNG)
 class AddCookieButton extends StatelessWidget {
   const AddCookieButton({super.key});
   @override

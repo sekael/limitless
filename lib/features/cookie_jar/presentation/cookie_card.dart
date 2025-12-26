@@ -92,6 +92,7 @@ class CookieCard extends StatelessWidget {
                       buttonText: 'Edit this Cookie',
                       leadingIcon: Icon(Icons.edit),
                       onPressed: onEditCookie,
+                      intent: GlassButtonIntent.secondary,
                     ),
                   ),
                   SizedBox(
@@ -105,12 +106,10 @@ class CookieCard extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 200,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextButton(
-                        onPressed: onDisplayNext,
-                        child: const Text('Eat another Cookie'),
-                      ),
+                    child: AdaptiveGlassButton.sync(
+                      buttonText: 'Eat another Cookie',
+                      leadingIcon: Icon(Icons.replay_rounded),
+                      onPressed: onDisplayNext,
                     ),
                   ),
                 ],
