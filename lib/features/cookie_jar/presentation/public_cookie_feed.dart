@@ -65,7 +65,7 @@ class _PublicCookieFeedState extends State<PublicCookieFeed> {
       itemBuilder: (context, index) {
         final cookie = publicCookies[index];
         return Card(
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.25),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
           child: ListTile(
             leading: const TextIcon(icon: '🍪'),
             title: Padding(
