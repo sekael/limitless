@@ -28,7 +28,7 @@ final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeClientFromFile('prod.env');
+  await initializeClientFromFile('config/prod.env');
 
   runApp(
     MultiProvider(

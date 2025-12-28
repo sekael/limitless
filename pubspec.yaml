@@ -30,8 +30,7 @@ flutter:
   assets:
     - assets/
     - assets/images/background/
-    - dev.env
-    - prod.env
+    - config/
 
 flutter_launcher_icons:
   android: true
