@@ -1,35 +1,31 @@
 name: Build Tagged Limitless Web App
 on:
-    push:
-        tags:
-            - "v*"
+  push:
+    tags:
+      - "v*"
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Ensure env file exists
-              run: |
-                  test -f prod.env || (echo "prod.env not found at repo root" && exit 1)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
 
-            - name: Setup Flutter
-              uses: subosito/flutter-action@v2
-              with:
-                  channel: stable
+      - name: Install dependencies
+        run: flutter pub get
 
-            - name: Install dependencies
-              run: flutter pub get
+      - name: Build web (release)
+        shell: bash
+        run: |
+          flutter build web --release
 
-            - name: Build web (release) using prod.env as dart-defines
-              shell: bash
-              run: |
-                  flutter build web --dart-define-from-file=prod.env --release
-
-            - name: Upload artifact (limitless-web)
-              uses: actions/upload-artifact@v4
-              with:
-                  name: limitless-web
-                  path: build/web
+      - name: Upload artifact (limitless-web)
+        uses: actions/upload-artifact@v4
+        with:
+          name: limitless-web
+          path: build/web
