@@ -104,7 +104,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 SliverPersistentHeader(
                   delegate: _SectionHeaderDelegate(
                     title: 'Community Cookies',
-                    height: 100,
+                    textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    height: 50,
                   ),
                   pinned: true,
                 ),
@@ -210,9 +213,14 @@ class _DashboardMenuDrawer extends StatelessWidget {
 
 class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String title;
+  final TextStyle? textStyle;
   final double height;
 
-  _SectionHeaderDelegate({required this.title, required this.height});
+  _SectionHeaderDelegate({
+    required this.title,
+    this.textStyle,
+    required this.height,
+  });
 
   @override
   Widget build(
@@ -234,7 +242,7 @@ class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
       ),
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: TitleText(titleText: title),
+      child: Text(title, style: textStyle),
     );
   }
 
@@ -246,6 +254,6 @@ class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant _SectionHeaderDelegate oldDelegate) {
-    return oldDelegate.title != title;
+    return oldDelegate.title != title || oldDelegate.textStyle != textStyle;
   }
 }
