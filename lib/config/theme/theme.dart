@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'typography.dart';
 import 'tokens.dart';
+import 'typography.dart';
 
 bool get _isCupertinoPlatform {
   if (kIsWeb) return false;

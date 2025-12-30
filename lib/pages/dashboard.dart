@@ -9,10 +9,10 @@ import 'package:limitless_flutter/components/theme_toggle.dart';
 import 'package:limitless_flutter/config/constants.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/add_cookie.dart';
 import 'package:limitless_flutter/features/cookie_jar/presentation/eat_cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/presentation/public_cookie_feed.dart';
 import 'package:limitless_flutter/pages/user_profile.dart';
 import 'package:provider/provider.dart';
 
-// TODO: implement display of public cookies in dashboard (feed)
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -28,11 +28,13 @@ class _DashboardPageState extends State<DashboardPage> {
     final userProfile = userService.getLoggedInUserProfile();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(128),
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.surface.withValues(alpha: 0.75),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text('Cookie Jar'),
-        backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(32),
+        backgroundColor: Theme.of(context).colorScheme.surfaceBright,
         scrolledUnderElevation: 0,
         actions: [
           if (isWide) ...[
@@ -76,27 +78,53 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SingleChildScrollView(
-                // Give some breathing room at bottom becaue of ThemeToggle
-                padding: const EdgeInsets.only(bottom: 80),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TitleText(
-                      titleText:
-                          'Welcome to Limitless, ${userProfile.firstName}!',
+            CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TitleText(
+                          titleText:
+                              'Welcome to Limitless, ${userProfile.firstName}!',
+                        ),
+                        const SizedBox(height: 8),
+                        ..._dashboardText(context),
+                        // Spacer between text and buttons
+                        const SizedBox(height: 12),
+                        SizedBox(width: 250, child: EatCookieButton()),
+                        SizedBox(width: 250, child: AddCookieButton()),
+                        const SizedBox(height: 16),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    ..._dashboardText(context),
-                    // Spacer between text and buttons
-                    const SizedBox(height: 12),
-                    SizedBox(width: 250, child: EatCookieButton()),
-                    SizedBox(width: 250, child: AddCookieButton()),
-                  ],
+                  ),
                 ),
-              ),
+                SliverPersistentHeader(
+                  delegate: _SectionHeaderDelegate(
+                    title: 'Community Cookies',
+                    textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    height: 50,
+                  ),
+                  pinned: true,
+                ),
+                SliverToBoxAdapter(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: SMALL_SCREEN_THRESHOLD,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: PublicCookieFeed(),
+                    ),
+                  ),
+                ),
+                // Add padding for theme toggle
+                SliverPadding(padding: EdgeInsetsGeometry.only(bottom: 80.0)),
+              ],
             ),
             PositionedDirectional(bottom: 0, end: 0, child: ThemeToggle()),
           ],
@@ -180,5 +208,52 @@ class _DashboardMenuDrawer extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final String title;
+  final TextStyle? textStyle;
+  final double height;
+
+  _SectionHeaderDelegate({
+    required this.title,
+    this.textStyle,
+    required this.height,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    const double fadeDistance = 50.0;
+    final double opacity = (shrinkOffset / fadeDistance).clamp(0.0, 1.0);
+    final cs = Theme.of(context).colorScheme;
+
+    final backgroundColor = cs.surfaceBright.withValues(alpha: opacity);
+    final shadowColor = cs.shadow.withValues(alpha: opacity * 0.1);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: Border(bottom: BorderSide(color: shadowColor, width: 2.0)),
+      ),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Text(title, style: textStyle),
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _SectionHeaderDelegate oldDelegate) {
+    return oldDelegate.title != title || oldDelegate.textStyle != textStyle;
   }
 }

@@ -47,7 +47,7 @@ class _AddCookieView extends StatefulWidget {
 
 class _AddCookieViewState extends State<_AddCookieView> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _cookieContentCtrl;
+  late TextEditingController _cookieContentCtrl;
   late bool _isPublic;
 
   bool _submitting = false;

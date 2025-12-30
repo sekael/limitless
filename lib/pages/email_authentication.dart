@@ -7,6 +7,7 @@ import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/core/supabase/auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// TODO: enable SSO providers Google, Apple
 class EmailOtpVerificationPage extends StatefulWidget {
   const EmailOtpVerificationPage({super.key});
 

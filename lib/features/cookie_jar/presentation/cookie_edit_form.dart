@@ -58,28 +58,26 @@ class _CookieEditFormState extends State<CookieEditForm> {
         const SizedBox(height: 8),
         CenterAlignedBodyText(bodyText: widget.subtitle),
         const SizedBox(height: 16),
-        Form(
-          child: TextFormField(
-            controller: widget.contentController,
-            autofocus: true,
-            minLines: 3,
-            maxLines: 5,
-            maxLength: 280,
-            textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              labelText: 'Your accomplishment',
-              hintText: 'Helped a friend with some really helpful advice!',
-              border: OutlineInputBorder(),
-            ),
-            validator: (v) {
-              final s = v?.trim() ?? '';
-              if (s.isEmpty) return 'Please write about something you enjoyed';
-              if (s.length < 3) return 'That seems a little short';
-              return null;
-            },
-            style: textTheme.bodyMedium?.copyWith(
-              color: colorScheme.inverseSurface,
-            ),
+        TextFormField(
+          controller: widget.contentController,
+          autofocus: true,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          minLines: 3,
+          maxLines: 5,
+          maxLength: 280,
+          decoration: const InputDecoration(
+            labelText: 'Your accomplishment',
+            hintText: 'Helped a friend with some really helpful advice!',
+            border: OutlineInputBorder(),
+          ),
+          validator: (v) {
+            final s = v?.trim() ?? '';
+            if (s.isEmpty) return 'Please write about something you enjoyed';
+            if (s.length < 3) return 'That seems a little short';
+            return null;
+          },
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.inverseSurface,
           ),
         ),
         Row(

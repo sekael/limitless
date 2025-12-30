@@ -8,6 +8,7 @@ import 'package:limitless_flutter/core/exceptions/unauthenticated_user.dart';
 import 'package:limitless_flutter/core/logging/app_logger.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie.dart';
+import 'package:limitless_flutter/features/cookie_jar/domain/public_cookie.dart';
 
 class CookieService extends ChangeNotifier {
   CookieService({
@@ -34,6 +35,14 @@ class CookieService extends ChangeNotifier {
   bool _loading = false;
   int _generation = 0; // protection against stale async fills
 
+  // Handle public cookies
+  List<PublicCookie> _publicCookies = [];
+  bool _loadingPublic = false;
+
+  // Getter for the UI
+  List<PublicCookie> get publicCookies => UnmodifiableListView(_publicCookies);
+  bool get loadingPublic => _loadingPublic;
+
   Future<void> setUser(String? userId) async {
     if (_userId == userId) return;
 
@@ -55,6 +64,7 @@ class CookieService extends ChangeNotifier {
 
     if (_userId != null) {
       await _fillQueueUntil(queueTarget);
+      unawaited(refreshPublicFeed());
     }
   }
 
@@ -101,6 +111,7 @@ class CookieService extends ChangeNotifier {
       isPublic,
     );
     _queue.addLast(newCookie);
+    unawaited(refreshPublicFeed());
     notifyListeners();
   }
 
@@ -119,6 +130,7 @@ class CookieService extends ChangeNotifier {
       _queue
         ..clear()
         ..addAll(rebuiltQueue);
+      unawaited(refreshPublicFeed());
       notifyListeners();
     }
     return cookieAfterUpdate;
@@ -131,7 +143,26 @@ class CookieService extends ChangeNotifier {
     await repository.deleteCookie(cookieToDelete.id);
     _queue.removeWhere((c) => c.id == cookieToDelete.id);
     _shownCookies.remove(cookieToDelete.id);
+
+    unawaited(refreshPublicFeed());
     notifyListeners();
+  }
+
+  Future<void> refreshPublicFeed() async {
+    _loadingPublic = true;
+    try {
+      logger.i('Getting public cookies');
+      final publicCookies = await repository.fetchPublicCookies();
+      logger.i(
+        'Retrieved ${publicCookies.length} public cookies from repository',
+      );
+      _publicCookies = publicCookies;
+    } catch (e, st) {
+      logger.e('Error retrieving public cookies from repository', e, st);
+    } finally {
+      _loadingPublic = false;
+      notifyListeners();
+    }
   }
 
   // Create a simple, deterministic seed from the userId
