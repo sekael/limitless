@@ -120,8 +120,8 @@ class _UserProfileFormState extends State<UserProfileForm> {
     if (value.length > 50) {
       return 'Username must be at most 50 characters long';
     }
-    if (value.length < 6) {
-      return 'Username must be at least 6 characters long';
+    if (value.length < 3) {
+      return 'Username must be at least 3 characters long';
     }
     if (!value.containsOnlyValidCharacters) {
       return 'Allowed are letters, numbers, dashes';
