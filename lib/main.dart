@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:limitless_flutter/app/user/user_service.dart';
 import 'package:limitless_flutter/components/background_image.dart';
 import 'package:limitless_flutter/components/sliding_page_transition.dart';
+import 'package:limitless_flutter/config/config_service.dart';
 import 'package:limitless_flutter/config/theme/theme_provider.dart';
-import 'package:limitless_flutter/core/supabase/bootstrap.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository.dart';
 import 'package:limitless_flutter/features/cookie_jar/data/cookie_repository_adapter.dart';
 import 'package:limitless_flutter/features/cookie_jar/domain/cookie_service.dart';
@@ -28,43 +28,52 @@ final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeClientFromFile('config/prod.env');
 
-  runApp(
-    MultiProvider(
-      providers: [
-        StreamProvider<Session?>(
-          create: (_) => Supabase.instance.client.auth.onAuthStateChange.map(
-            (data) => data.session,
+  try {
+    await ConfigService().load();
+    await Supabase.initialize(
+      url: ConfigService().supabaseUrl,
+      anonKey: ConfigService().supabaseAnonKey,
+    );
+
+    runApp(
+      MultiProvider(
+        providers: [
+          StreamProvider<Session?>(
+            create: (_) => Supabase.instance.client.auth.onAuthStateChange.map(
+              (data) => data.session,
+            ),
+            initialData: Supabase.instance.client.auth.currentSession,
+            catchError: (context, error) => null,
           ),
-          initialData: Supabase.instance.client.auth.currentSession,
-          catchError: (context, error) => null,
-        ),
-        Provider<QuotesRepository>(create: (_) => QuotesRepositoryAdapter()),
-        Provider<CookieRepository>(create: (_) => CookieRepositoryAdapter()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(
-          create: (_) =>
-              UserService(userProfileRepository: UserProfileRepositoryAdapter())
-                ..init(),
-        ),
-        // CookieService depends on the user being logged in (hence the proxy provider with Session)
-        ChangeNotifierProxyProvider<Session?, CookieService>(
-          create: (context) =>
-              CookieService(repository: context.read<CookieRepository>()),
-          update: (context, session, cookieService) {
-            // If cookieService is currently null, initialize it with CookieRepository
-            cookieService ??= CookieService(
-              repository: context.read<CookieRepository>(),
-            );
-            unawaited(cookieService.setUser(session?.user.id));
-            return cookieService;
-          },
-        ),
-      ],
-      child: MainApp(),
-    ),
-  );
+          Provider<QuotesRepository>(create: (_) => QuotesRepositoryAdapter()),
+          Provider<CookieRepository>(create: (_) => CookieRepositoryAdapter()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(
+            create: (_) => UserService(
+              userProfileRepository: UserProfileRepositoryAdapter(),
+            )..init(),
+          ),
+          // CookieService depends on the user being logged in (hence the proxy provider with Session)
+          ChangeNotifierProxyProvider<Session?, CookieService>(
+            create: (context) =>
+                CookieService(repository: context.read<CookieRepository>()),
+            update: (context, session, cookieService) {
+              // If cookieService is currently null, initialize it with CookieRepository
+              cookieService ??= CookieService(
+                repository: context.read<CookieRepository>(),
+              );
+              unawaited(cookieService.setUser(session?.user.id));
+              return cookieService;
+            },
+          ),
+        ],
+        child: MainApp(),
+      ),
+    );
+  } catch (e) {
+    runApp(ErrorWidget(e));
+  }
 }
 
 class MainApp extends StatelessWidget {
